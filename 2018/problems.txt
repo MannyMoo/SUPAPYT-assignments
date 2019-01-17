@@ -1,0 +1,11 @@
+This file contains quarterly changes to GDP, in percent with respect to the previous quarter, for the past 20 years of 35 countries belonging to The Organisation for Economic Co-operation and Development (OECD, http://www.oecd.org/), obtained from https://data.oecd.org/gdp/quarterly-gdp.htm. Write a package/module and main script to parse the data file and perform these tasks:
+
+1) Find the country and quarter with the highest percentage change and that with the lowest precentage change. Some countries are missing data for some quarters (the entry for that quarter is blank), so these missing quarters should be ignored.
+
+2) For each quarter, take the average of the changes in GDP across all countries (ignoring blank entries). Find the quarter with the highest average change and the quarter with the lowest average change.
+
+3) Find the cumulative percentage change for each country. To do so, start with 1 and for each quarter (that isn't blank) multiply it by (1 + change/100). Eg, the first two changes for Greece (GRC) are 0.575928 and 1.69888, so the cumulative change is 1 * (1 + 0.575928/100) * (1 + 1.69888/100) = 1.0228, or +2.28 %. Rank each country according to its cumulative change in GDP.
+
+4) Calculate the cumulative percentage change in GDP for all countries for quarters up to and including 2006-Q4, and likewise for quarters from 2007-Q1 onwards. Rank each country according to the difference between the cumulative changes in the later and earlier time periods. Some countries have no entries prior to 2007, so these countries should be skipped.
+
+Check out the csv module for functionality to help with parsing the data file. Only standard library modules are allowed, no 3rd party ones (so no Pandas or numpy, etc). Please submit your solution .py files via this page, and email me or use the discussion forum if anything's unclear.
