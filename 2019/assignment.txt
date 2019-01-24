@@ -1,0 +1,15 @@
+[This file]() contains a record of every earthquake from 1000-1903, taken from [here](https://www.emidius.eu/GEH/). Each row represents one earthquake record, and each column an attribute of each earthquake. The meaning of each column is described at the top of the file. The values for each column are separated by tabs ("\t" in python).
+
+The [csv module](https://docs.python.org/3/library/csv.html) is very useful for reading such files, particularly the [DictReader class](https://docs.python.org/3/library/csv.html#csv.DictReader). You'll have to use delimiter = "\t" when initialising a DictReader to read this file, and skip the lines starting with # at the start of the file.
+
+Write a script/module/package to read in the file and perform the following tasks:
+
+1) Find the smallest and largest magnitudes of any earthquakes in the file (the "M" field). Find all earthquakes with these magnitudes (there's more than one for each) and print their magnitudes, location ("Area"), latitude and longitude ("Lat" & "Lon"), and their date ("Year", "Mo", "Da", "Ho", "Mi" & "Se").
+
+2) Find the earliest and latest entries in the file (using "Year", "Mo", "Da", "Ho", "Mi" & "Se" and the datetime class from the datetime module). Print the same information about them as in problem 1. If the "Mo" or "Da" attributes are missing for an entry, their value should be taken as 1. If the "Ho", "Mi" or "Se" attributes are missing, they should be taken as 0.
+
+3) Find the mean, median, and standard deviation of the magnitudes ("M"). Do the same for the depths ("Dep"), ignoring any entries that are missing a depth measurement.
+
+4) Print the number of earthquakes that were recorded in each decade (eg, 1000-1009 inclusive) between 1000 and 1909.
+
+5) Divide longitude ("Lon") in 10 degree intervals from -180 to +180 and print the number of earthquakes recorded in each interval, ignoring any entries that don't have a longitude value. What's the most active interval?
