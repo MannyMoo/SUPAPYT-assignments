@@ -1,0 +1,191 @@
+********** Prob 1 **********
+Find the smallest and largest magnitudes of any earthquakes in the file
+(the "M" field). Find all earthquakes with these magnitudes (there's more 
+than one for each) and print their magnitudes, location ("Area"), latitude 
+and longitude ("Lat" & "Lon"), and their date ("Year", "Mo", "Da", "Ho", 
+"Mi" & "Se").
+
+Smallest:
+M:   6.0, Area:            Mediterranean?, Lat:   32.0, Lon:   30.0, Date: 1698-10-02 08:30:00
+M:   6.0, Area:            Eritrean scarp, Lat:   15.7, Lon:   39.0, Date: 1733-11-30 00:00:00
+M:   6.0, Area:                     Sudan, Lat:    4.2, Lon:   31.6, Date: 1850-01-01 00:00:00
+M:   6.0, Area:              Barrow Range, Lat: -26.25, Lon:  127.5, Date: 1873-12-15 00:00:00
+M:   6.0, Area:             Anseba Faults, Lat:   16.0, Lon:   38.5, Date: 1875-11-02 00:00:00
+M:   6.0, Area:                     Libya, Lat:   30.2, Lon:    9.5, Date: 1883-08-01 00:00:00
+
+Largest:
+M:   9.0, Area:  Cascadia Subduction Zone, Lat:   48.5, Lon: -125.0, Date: 1700-01-27 05:00:00
+M:   9.0, Area:                 Indonesia, Lat:   -3.5, Lon:  100.0, Date: 1833-11-24 13:30:00
+
+********** Prob 2 **********
+Find the earliest and latest entries in the file (using "Year", "Mo", "Da", 
+"Ho", "Mi" & "Se" and the datetime class from the datetime module). Print the
+same information about them as in problem 1. If the "Mo" or "Da" attributes 
+are missing for an entry, their value should be taken as 1. If the "Ho", "Mi"
+or "Se" attributes are missing, they should be taken as 0.
+
+Earliest:
+M:   7.0, Area:                   Dinavar, Lat:   34.6, Lon:   47.4, Date: 1008-04-27 18:00:00
+Latest:
+M:   7.1, Area:               Philippines, Lat:    7.0, Lon:  127.0, Date: 1903-12-28 02:56:00
+
+********** Prob 3 **********
+Find the mean, median, and standard deviation of the magnitudes ("M"). Do the
+same for the depths ("Dep"), ignoring any entries that are missing a depth 
+measurement.
+
+Magnitude:
+min    :  6.00
+max    :  9.00
+mean   :  7.30
+median :  7.20
+stddev :  0.47
+
+Depth [km]:
+min    :  0.00
+max    : 600.00
+mean   : 51.05
+median : 30.00
+stddev : 68.30
+
+********** Prob 4 **********
+Print the number of earthquakes that were recorded in each decade (eg, 1000-1009
+inclusive) between 1000 and 1909.
+
+Number of earthquakes per decade:
+1000 1
+1010 0
+1020 0
+1030 2
+1040 1
+1050 4
+1060 3
+1070 0
+1080 0
+1090 2
+1100 1
+1110 3
+1120 2
+1130 1
+1140 0
+1150 1
+1160 0
+1170 2
+1180 1
+1190 1
+1200 2
+1210 2
+1220 0
+1230 1
+1240 1
+1250 2
+1260 2
+1270 2
+1280 0
+1290 2
+1300 3
+1310 0
+1320 1
+1330 2
+1340 1
+1350 3
+1360 4
+1370 0
+1380 1
+1390 0
+1400 5
+1410 1
+1420 0
+1430 1
+1440 2
+1450 3
+1460 1
+1470 2
+1480 1
+1490 3
+1500 6
+1510 4
+1520 2
+1530 4
+1540 1
+1550 5
+1560 5
+1570 5
+1580 10
+1590 6
+1600 14
+1610 11
+1620 8
+1630 5
+1640 10
+1650 11
+1660 13
+1670 13
+1680 14
+1690 17
+1700 11
+1710 15
+1720 9
+1730 15
+1740 14
+1750 17
+1760 18
+1770 14
+1780 24
+1790 13
+1800 9
+1810 26
+1820 21
+1830 28
+1840 36
+1850 56
+1860 45
+1870 47
+1880 36
+1890 69
+1900 65
+
+********** Prob 5 **********
+Divide longitude ("Lon") in 10 degree intervals from -180 to +180 (eg, 
+-180 <= Lon < -170, -170 <= Lon < -160, etc) and print the number of earthquakes 
+recorded in each interval, ignoring any entries that don't have a longitude value
+(empty string). What's the most active interval?
+
+Number of earthquakes per 10 Deg. interval in longitude:
+-180 to -170 Deg.: 3
+-170 to -160 Deg.: 3
+-160 to -150 Deg.: 7
+-150 to -140 Deg.: 4
+-140 to -130 Deg.: 3
+-130 to -120 Deg.: 7
+-120 to -110 Deg.: 10
+-110 to -100 Deg.: 12
+-100 to  -90 Deg.: 44
+ -90 to  -80 Deg.: 68
+ -80 to  -70 Deg.: 113
+ -70 to  -60 Deg.: 27
+ -60 to  -50 Deg.: 0
+ -50 to  -40 Deg.: 0
+ -40 to  -30 Deg.: 0
+ -30 to  -20 Deg.: 1
+ -20 to  -10 Deg.: 7
+ -10 to    0 Deg.: 4
+   0 to   10 Deg.: 7
+  10 to   20 Deg.: 7
+  20 to   30 Deg.: 58
+  30 to   40 Deg.: 40
+  40 to   50 Deg.: 19
+  50 to   60 Deg.: 19
+  60 to   70 Deg.: 2
+  70 to   80 Deg.: 14
+  80 to   90 Deg.: 9
+  90 to  100 Deg.: 34
+ 100 to  110 Deg.: 48
+ 110 to  120 Deg.: 27
+ 120 to  130 Deg.: 70
+ 130 to  140 Deg.: 67
+ 140 to  150 Deg.: 55
+ 150 to  160 Deg.: 12
+ 160 to  170 Deg.: 15
+ 170 to  180 Deg.: 9
+Most active region: -80.0 to -70.0 Deg. : 113

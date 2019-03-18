@@ -2,7 +2,7 @@
 
 from Database.Entry import class_factory
 from csv import DictReader, DictWriter
-from statistics import median
+import statistics
 
 class Database(object) :
     '''Generic database class for statistical analysis.'''
@@ -18,20 +18,27 @@ class Database(object) :
             '''Constructor, takes the Database and the name of the attribute 
             over which to iterate.'''
             
-            # Just to check that the db Entry class has the given attr,
-            # will raise an exception if not.
-            getattr(db.Entry, attr)
-
             self.db = db
             if isinstance(attr, str) :
                 self.getter = lambda entry : getattr(entry, attr)
             else :
                 self.getter = attr
 
+            # Just to check that the db Entry class has the given attr,
+            # will raise an exception if not.
+            if self.db.entries :
+                self.getter(self.db.entries[0])
+
+
         def __iter__(self) :
             '''Iterate over the entries.'''
             return (self.getter(entry) for entry in self.db.entries)
 
+        def __len__(self) :
+            '''Get the number of elements in the sequence.'''
+
+            return len(self.db.entries)
+        
     class DBNonNullIterator(DBIterator) :
         '''Iterator over entries in the Database with non-null values of 
         a given attribute.'''
@@ -43,12 +50,25 @@ class Database(object) :
             over which to iterate.'''
             super().__init__(db, attr)
             self.null = null
-                                
+            
         def __iter__(self) :
             '''Iterate over the entries with non-null values.'''
             return (self.getter(entry) for entry in self.db.entries \
                     if self.getter(entry) != self.null)
-                     
+
+        def __len__(self) :
+            '''Get the number of elements in the sequence.'''
+            # This is required to use functions from the statistics module.
+            # It's a little sub-optimal as it requires looping over all
+            # the elements to get the number that're non-null, but still
+            # preferable to reimplementing the stats functions.
+            # 'n' could be cached, but then we'd have to check every time
+            # if the DB has changed at all, which would probably be slower.
+            n = 0
+            for i in self :
+                n += 1
+            return n
+        
     def __init__(self, entries = []) :
         '''Constructor. Just takes the list of entries.'''
         self.entries = list(entries)
@@ -76,7 +96,7 @@ class Database(object) :
         '''Write the db to a file in csv format.'''
 
         # Needs to be opened in binary mode (on Windows)
-        with open(fname, 'bw') as foutput :
+        with open(fname, 'w') as foutput :
             attrs = self.Entry.attributes()
             writer = DictWriter(foutput, attrs)
             writer.writeheader()
@@ -101,19 +121,12 @@ class Database(object) :
             return operation(self, attr, null)
         return default
 
-    def _mean(self, attr, null) :
-        '''Calculate the mean of non-null entries.'''
-        n = 0
-        mean = 0.
-        for val in self.non_null_iterator(attr, null) :
-            mean += val
-            n += 1
-        return mean/n
-    
     def mean(self, attr, null = '') :
         '''Calculate the mean of non-null entries. Returns None if there're
         no non-null entries.'''
-        return self._stat(attr, Database._mean)
+        return self._stat(attr,
+                          (lambda self, attr, null : statistics.mean(self.non_null_iterator(attr, null))),
+                          null)
 
     def _meansq(self, attr, null) :
         '''Calculate the mean of the square of non-null entries.'''
@@ -134,7 +147,7 @@ class Database(object) :
         if there're no non-null entries.'''
         return self._stat(attr,
                           (lambda self, attr, null : \
-                           max(self.meansq(attr, null) - self.mean(attr, null)**2, 0.)**.5),
+                           statistics.stdev(self.non_null_iterator(attr, null))),
                           null)
 
     def min(self, attr, null = '') :
@@ -155,7 +168,7 @@ class Database(object) :
         '''Get the median of non-null entries. Returns None if there're no 
         non-null entries.'''
         return self._stat(attr,
-                          (lambda self, attr, null : median(self.non_null_iterator(attr, null))),
+                          (lambda self, attr, null : statistics.median(self.non_null_iterator(attr, null))),
                           null)
 
     def stats(self, attr, null = '') :
@@ -190,6 +203,11 @@ class Database(object) :
         '''Return a Database of entries satisfying the method 'test'.'''
         return Database(filter(test, self.entries))
 
+    def filter_matching(self, attr, val) :
+        '''Filter entries where attr == val.'''
+        iterator = self.iterator(attr)
+        return self.filter(lambda entry : iterator.getter(entry) == val)
+    
     def __iter__(self) :
         '''Iterate over entries in the db.'''
         return iter(self.entries)
