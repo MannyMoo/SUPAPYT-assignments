@@ -1,0 +1,21 @@
+[This file]() contains a subset of data taken from the [JPL Small-Body Database](https://ssd.jpl.nasa.gov/sbdb_query.cgi). The meaning of each column is described [here](). The meaning of each column is described at the top of the file. The values for each column are separated by tabs ("\t" in python).
+
+The [csv module](https://docs.python.org/3/library/csv.html) is very useful for reading such files, particularly the [DictReader class](https://docs.python.org/3/library/csv.html#csv.DictReader). You'll have to use delimiter = "\t" when initialising a DictReader to read this file, and skip the lines starting with # at the start of the file.
+
+Download [the data file](https://raw.githubusercontent.com/MannyMoo/SUPAPYT-assignments/master/2019/GEM-GHEC-v1.txt) and write a script/module/package to read in the file and perform the following tasks:
+
+1) Find the smallest and largest magnitudes of any earthquakes in the file (the "M" field). Find all earthquakes with these magnitudes (there's more than one for each) and print their magnitudes, location ("Area"), latitude and longitude ("Lat" & "Lon"), and their date ("Year", "Mo", "Da", "Ho", "Mi" & "Se").
+
+2) Find the earliest and latest entries in the file (using "Year", "Mo", "Da", "Ho", "Mi" & "Se" and the datetime class from the datetime module). Print the same information about them as in problem 1. If the "Mo" or "Da" attributes are missing for an entry, their value should be taken as 1. If the "Ho", "Mi" or "Se" attributes are missing, they should be taken as 0.
+
+3) Find the mean, median, and standard deviation of the magnitudes ("M"). Do the same for the depths ("Dep"), ignoring any entries that are missing a depth measurement.
+
+4) Print the number of earthquakes that were recorded in each decade (eg, 1000-1009 inclusive) between 1000 and 1909.
+
+5) Divide longitude ("Lon") in 10 degree intervals from -180 to +180 and print the number of earthquakes recorded in each interval, ignoring any entries that don't have a longitude value. What's the most active interval?
+
+Only [standard library](https://docs.python.org/3/library/) modules are allowed, no 3rd party ones (so no Pandas or numpy, etc). 
+
+Please submit your solution .py files via this page. A jupyter notebook is also acceptable. I'll execute your code, with the data file in the same directory, to check its results and assess how well it's written and structured, and how it makes use of python functionality. Keep in mind the [coding tips](https://mannymoo.github.io/IntroductionToPython/SUPAPYT-IntroductionToPython.html#A-Few-Tips) from the end of the lectures. 
+
+Please [email me](michael.alexander@glasgow.ac.uk) or use the [discussion forum](https://my.supa.ac.uk/mod/forum/view.php?id=14579) if anything's unclear.
