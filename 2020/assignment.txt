@@ -1,18 +1,22 @@
-[This file]() contains a subset of data taken from the [JPL Small-Body Database](https://ssd.jpl.nasa.gov/sbdb_query.cgi). The meaning of each column is described [here](). The meaning of each column is described at the top of the file. The values for each column are separated by tabs ("\t" in python).
+[This file](https://github.com/MannyMoo/SUPAPYT-assignments/raw/master/2020/small-body-db.csv) contains a subset of data taken from the [JPL Small-Body Database](https://ssd.jpl.nasa.gov/sbdb_query.cgi). Each row in the file represents one asteroid or comet that's been observed and tracked by NASA. The names of the columns are on the first line. The meaning of each column is described [here](https://raw.githubusercontent.com/MannyMoo/SUPAPYT-assignments/master/2020/columns.txt).
 
-The [csv module](https://docs.python.org/3/library/csv.html) is very useful for reading such files, particularly the [DictReader class](https://docs.python.org/3/library/csv.html#csv.DictReader). You'll have to use delimiter = "\t" when initialising a DictReader to read this file, and skip the lines starting with # at the start of the file.
+The [csv module](https://docs.python.org/3/library/csv.html) is very useful for reading such files, particularly the [DictReader class](https://docs.python.org/3/library/csv.html#csv.DictReader).
 
-Download [the data file](https://raw.githubusercontent.com/MannyMoo/SUPAPYT-assignments/master/2019/GEM-GHEC-v1.txt) and write a script/module/package to read in the file and perform the following tasks:
+Download [the data file](https://github.com/MannyMoo/SUPAPYT-assignments/raw/master/2020/small-body-db.csv) and write a script/module/package to read in the file and output the following information:
 
-1) Find the smallest and largest magnitudes of any earthquakes in the file (the "M" field). Find all earthquakes with these magnitudes (there's more than one for each) and print their magnitudes, location ("Area"), latitude and longitude ("Lat" & "Lon"), and their date ("Year", "Mo", "Da", "Ho", "Mi" & "Se").
+1) The names of the objects with the smallest and largest minimum orbit intersection distance (MOID) to Earth (the "moid" column). Not all entries have a "moid" value - those without one should be ignored.
 
-2) Find the earliest and latest entries in the file (using "Year", "Mo", "Da", "Ho", "Mi" & "Se" and the datetime class from the datetime module). Print the same information about them as in problem 1. If the "Mo" or "Da" attributes are missing for an entry, their value should be taken as 1. If the "Ho", "Mi" or "Se" attributes are missing, they should be taken as 0.
+2) The mean and standard deviation of the diameters of the objects (the "diameter" column).
 
-3) Find the mean, median, and standard deviation of the magnitudes ("M"). Do the same for the depths ("Dep"), ignoring any entries that are missing a depth measurement.
+3) The min, max, mean and standard deviation of the MOID to Earth for objects with the Near-Earth Object flag = Y ("neo" column), and for objects with the Potentially Hazardous Asteroid flag = Y ("pha" column).
 
-4) Print the number of earthquakes that were recorded in each decade (eg, 1000-1009 inclusive) between 1000 and 1909.
+4) How many objects have been found by each person/institution ("producer" column).
 
-5) Divide longitude ("Lon") in 10 degree intervals from -180 to +180 and print the number of earthquakes recorded in each interval, ignoring any entries that don't have a longitude value. What's the most active interval?
+5) The names of the objects with the earliest and latest first observation ("first_obs" column).
+
+6) The mean absolute magnitude ("H") of objects with first observation in each decade (group the objects according to the decade of their first observation and calculate the mean "H" for each group). A decade is defined as, eg, 2000-01-01 to 2009-12-31 inclusive.
+
+For a given problem, an entry in the database should be skipped if it doesn't have a value for all the required columns.
 
 Only [standard library](https://docs.python.org/3/library/) modules are allowed, no 3rd party ones (so no Pandas or numpy, etc). 
 

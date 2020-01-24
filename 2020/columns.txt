@@ -12,7 +12,7 @@ a: semi-major axis (au)
 q: perihelion distance (au)
 i: inclination; angle with respect to x-y ecliptic plan (deg)
 ad: aphelion distance (au)
-moid: Eartih Minimum Orbit Intersection Distance (MOID) (au)
+moid: Earth Minimum Orbit Intersection Distance (MOID) (au)
 moid_jup: Jupiter Minimum Orbin Intersection Distance (MOID) (au)
 producer: name of person or institution who computed the orbit
 data_arc: number of days spanned by the data-arc (days)
