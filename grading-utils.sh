@@ -45,3 +45,27 @@ print(str(dirs.index(os.path.split(os.getcwd())[1])+1) + "/" + str(len(dirs)))
 function open-grade() {
     open Participant_${1}_assignsubmission_file_/Participant_${1}_MarkingCriteria.pdf
 }
+
+# Should be executed in the directory containing the submission directories Participant_NNNN_.*
+# First argument is the marking criteria spreadsheet.
+function cp-marking-criteria() {
+    crit=$1
+    for d in $(find . -mindepth 1 -maxdepth 1 -type d) ; do
+	d=$(basename $d)
+	dest=$(echo $d | sed 's/\(Participant_[0-9]*\)_.*/\1_MarkingCriteria.ods/')
+	cp $crit $d/$dest
+    done
+}
+
+# Should be executed in the directory containing the submission directories Participant_NNNN_.*
+# First argument is the input file.
+function cp-input-file() {
+    fname=$(abspath $1)
+    bname=$(basename $fname)
+    for d in $(find . -mindepth 1 -maxdepth 1 -type d) ; do
+	dest=$d/$bname
+	if [ ! -e $dest ] ; then
+	    ln -s $fname $dest
+	fi
+    done
+}
