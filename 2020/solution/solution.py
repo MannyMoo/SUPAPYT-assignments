@@ -12,8 +12,8 @@ def problem1(db):
     print('Problem 1:')
     minentry = db.min_entry('moid')
     maxentry = db.max_entry('moid')
-    print('Entry with min. MOID to Earth:', minentry)
-    print('Entry with max. MOID to Earth:', maxentry)
+    print('Entry with min. MOID to Earth: {0:20}, MOID: {1:5.3g}'.format(minentry.full_name.strip(), minentry.moid))
+    print('Entry with max. MOID to Earth: {0:20}, MOID: {1:5.3g}'.format(maxentry.full_name.strip(), maxentry.moid))
     print()
     
 def problem2(db):
@@ -54,8 +54,10 @@ def problem5(db):
     ("first_obs" column).'''
 
     print('Problem 5:')
-    print('Earliest:', db.min_entry('first_obs'))
-    print('Latest:', db.max_entry('first_obs'))
+    earliest = db.min_entry('first_obs')
+    latest = db.max_entry('first_obs')
+    print('Earliest: {0:20} {1}'.format(earliest.full_name.strip(), earliest.first_obs))
+    print('Latest:   {0:20} {1}'.format(latest.full_name.strip(), latest.first_obs))
     print()
     
 def first_obs_date(entry):
