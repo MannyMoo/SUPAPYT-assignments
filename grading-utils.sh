@@ -32,6 +32,12 @@ else :
     else
 	cd ../$nextstudent
 	open *.ods
+	ipynb="$(ls *.ipynb 2> /dev/null)"
+	if [ ! -z "$ipynb" ] ; then
+	    jupyter notebook $ipynb&
+	else
+	    e *.py&
+	fi
     fi
 }
 

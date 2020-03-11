@@ -1,8 +1,13 @@
-Problem 1:
+*** 1) The names of the objects with the smallest and largest minimum orbit
+    intersection distance (MOID) to Earth (the "moid" column). Not all entries
+    have a "moid" value - those without one should be ignored.
+
 Entry with min. MOID to Earth: (2008 CF22)         , MOID: 0.000177
 Entry with max. MOID to Earth: (2004 VA76)         , MOID:  42.9
 
-Problem 2:
+*** 2) The mean and standard deviation of the diameters of the objects 
+    (the "diameter" column).
+
 Diameter stats:
 n      : 1.41e+03
 min    :  0.16
@@ -11,7 +16,10 @@ mean   :  5.31
 median :  3.96
 stddev :  8.54
 
-Problem 3:
+*** 3) The min, max, mean and standard deviation of the MOID to Earth 
+    for objects with the Near-Earth Object flag = Y ("neo" column), and 
+    for objects with the Potentially Hazardous Asteroid flag = Y ("pha" column).
+
 MOID to Earth stats, NEO = Y:
 n      :   226
 min    : 0.000177
@@ -28,7 +36,8 @@ mean   : 0.0255
 median : 0.0253
 stddev : 0.016
 
-Problem 4:
+*** 4) How many objects have been found by each person/institution ("producer" column).
+
 Number of objects per person/institution:
 Davide Farnocchia         1
 MPCS                      1
@@ -46,14 +55,24 @@ Williams                  203
 Veres                     287
 Otto Matic                8938
 
-Problem 5:
+*** 5) The names of the objects with the earliest and latest first observation 
+    ("first_obs" column).
+
 Earliest: C/1556 D1            1556-02-27
 Latest:   (2019 YQ3)           2019-12-28
 
+*** 6) The mean absolute magnitude ("H") of objects with first observation
+    in each decade (group the objects according to the decade of their first
+    observation and calculate the mean "H" for each group). A decade is defined
+    as, eg, 2000-01-01 to 2009-12-31 inclusive.
+
 Mean magnitudes per decade:
 1860: H:   7.1 MOID:  2.29
+1870: -
+1880: -
 1890: H:  10.6 MOID:  1.12
 1900: H:  10.9 MOID:  1.22
+1910: -
 1920: H:  12.1 MOID: 0.929
 1930: H:  12.1 MOID:   1.3
 1940: H:  13.2 MOID:  1.13
