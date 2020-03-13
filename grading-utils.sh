@@ -19,7 +19,7 @@ function all-grades-to-pdf() {
 
 function next-student() {
     nextstudent=$(python2 -c "import os
-dirs = sorted(os.listdir('..'))
+dirs = filter(lambda d : os.path.isdir('../' + d), sorted(os.listdir('..')))
 pwd = os.getcwd().split(os.sep)[-1]
 ipwd = dirs.index(pwd)
 if ipwd == len(dirs) - 1 :
