@@ -69,14 +69,18 @@ class Database(object) :
                 n += 1
             return n
         
-    def __init__(self, entries = []) :
-        '''Constructor. Just takes the list of entries.'''
+    def __init__(self, entries = [], csvfile = None, readonly = True) :
+        '''Constructor. Can take the list of entries and/or an open file in csv 
+        format from which to read the entries. readonly defines whether the
+        entries can be modified.'''
         self.entries = list(entries)
         # Keep a reference to the class of the entries in the list.
         if self.entries :
             self.Entry = self.entries[0].__class__
         else :
             self.Entry = None
+        if csvfile:
+            self.read_from_csv(csvfile, readonly)
             
     def read_from_csv(self, datafile, readonly, attrs = None, **kwargs) :
         '''Read from an open file (or other iterable) using csv.DictReader. 
