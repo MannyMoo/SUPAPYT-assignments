@@ -1,4 +1,7 @@
-'''Solve the SUPAPYT assignment.'''
+#!/usr/bin/env python
+
+'''Solve the SUPAPYT assignment, analysing a subset of the JPL small object database from 
+https://ssd.jpl.nasa.gov/sbdb_query.cgi.'''
 
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -53,6 +56,9 @@ def problem5(db):
     
 def first_obs_date(entry):
     '''Get the first observation date of the entry as a datetime instance.'''
+
+    # Some entries have ?? as the day or month try each of these in turn. The last one should
+    # at least work.
     for form in '%Y-%m-%d', '%Y-%m-??', '%Y-??-??':
         try:
             return datetime.strptime(entry.first_obs, form)
@@ -97,13 +103,35 @@ def problem6(db):
         print(f'{decade}: H: {meanmag:5.3g} MOID: {meanmoid:5.3g}')
         
 def main():
-    '''Execute the functions to solve the problems.'''
+    '''Parse the commandline arguments and execute the functions to solve the problems.'''
 
-    db = Database()
-    with open('small-body-db.csv') as finput:
-        db.read_from_csv(finput, True)
+    # Annoylingly necessary to provide a custom usage as the default puts [--problems] before [fname].
+    # Of course you can run it with, eg:
+    # ./main.py --problems 1 2 -- <fname>
+    # as well as
+    # ./main.py <fname> --problems 1 2
+    # but the default help doesn't point out that you need the "--" in the first instance.
+    argparser = ArgumentParser(usage = 'main.py [-h] [fname] [--problems [PROBLEMS [PROBLEMS ...]]]')
 
-    for prob in problem1, problem2, problem3, problem4, problem5, problem6:
+    # Optional positional argument for the file name.
+    argparser.add_argument('fname', nargs = '?', default = 'GEM-GHEC-v1.txt',
+                           help = 'Name of the input file (default: GEM-GHEC-v1.txt)')
+    # Optional named argument for the problems to execute. Can take any number
+    # of values.
+    problemnos = list(range(1,7))
+    argparser.add_argument('--problems', nargs = '*', default = problemnos,
+                           help = 'List of problems to do (default: all)')
+
+    args = argparser.parse_args()
+    with open(args.fname) as finput:
+        db = Database(csvfile = finput)
+
+    # Loop over requested problems.
+    for probno in args.problems:
+        if not probno in problemnos:
+            raise ValueError(f'Invalid problem number: {probno}! Available problems: {problemnos}')
+        # 'globals' is the dict of all variables in the current namespace.
+        prob = globals()['problem' + str(probno)]
         print('*** ' + prob.__doc__)
         print()
         prob(db)
