@@ -118,7 +118,7 @@ def main():
                            help = 'Name of the input file (default: small-body-db.csv)')
     # Optional named argument for the problems to execute. Can take any number
     # of values.
-    problemnos = list(range(1,7))
+    problemnos = list(map(str, range(1,7)))
     argparser.add_argument('--problems', nargs = '*', default = problemnos,
                            help = 'List of problems to do (default: all)')
 
@@ -128,8 +128,9 @@ def main():
 
     # Loop over requested problems.
     for probno in args.problems:
-        if not int(probno) in problemnos:
-            raise ValueError(f'Invalid problem number: {probno}! Available problems: {problemnos}')
+        if not probno in problemnos:
+            raise ValueError('Invalid problem number: {0}! Available problems: {1}'\
+                             .format(probno, ', '.join(problemnos)))
         # 'globals' is the dict of all variables in the current namespace.
         prob = globals()['problem' + probno]
         print('*** ' + prob.__doc__)
