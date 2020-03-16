@@ -7,6 +7,7 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from math import floor
 from Database import Database
+from argparse import ArgumentParser
 
 def problem1(db):
     '''1) The names of the objects with the smallest and largest minimum orbit
@@ -99,8 +100,7 @@ def problem6(db):
         # Get the DB for this decade & its mean H
         decadedb = decadedbs[decade]
         meanmag = decadedb.mean('H')
-        meanmoid = decadedb.mean('moid')
-        print(f'{decade}: H: {meanmag:5.3g} MOID: {meanmoid:5.3g}')
+        print(f'{decade}: H: {meanmag:5.3g}')
         
 def main():
     '''Parse the commandline arguments and execute the functions to solve the problems.'''
@@ -114,8 +114,8 @@ def main():
     argparser = ArgumentParser(usage = 'main.py [-h] [fname] [--problems [PROBLEMS [PROBLEMS ...]]]')
 
     # Optional positional argument for the file name.
-    argparser.add_argument('fname', nargs = '?', default = 'GEM-GHEC-v1.txt',
-                           help = 'Name of the input file (default: GEM-GHEC-v1.txt)')
+    argparser.add_argument('fname', nargs = '?', default = 'small-body-db.csv',
+                           help = 'Name of the input file (default: small-body-db.csv)')
     # Optional named argument for the problems to execute. Can take any number
     # of values.
     problemnos = list(range(1,7))
@@ -128,10 +128,10 @@ def main():
 
     # Loop over requested problems.
     for probno in args.problems:
-        if not probno in problemnos:
+        if not int(probno) in problemnos:
             raise ValueError(f'Invalid problem number: {probno}! Available problems: {problemnos}')
         # 'globals' is the dict of all variables in the current namespace.
-        prob = globals()['problem' + str(probno)]
+        prob = globals()['problem' + probno]
         print('*** ' + prob.__doc__)
         print()
         prob(db)
