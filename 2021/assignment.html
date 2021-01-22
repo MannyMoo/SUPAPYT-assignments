@@ -189,18 +189,21 @@ where <code>masses</code> is the sequence of mass values from the data file. You
 <ul>
 <li>Taking the values found in problem 1, define the background regions to be</li>
 </ul>
-<p><code>min &lt;= mass and mass &lt; min + stddev</code></p>
+<p><code>min &lt;= mass and mass &lt; min + stddev*0.8</code></p>
 <p>and</p>
-<p><code>max - stddev &lt;= mass and mass &lt; max</code>,</p>
+<p><code>max - stddev*0.8 &lt;= mass and mass &lt; max</code>,</p>
 <p>where <code>min</code> and <code>max</code> are the minimum and maximum of the masses and <code>stddev</code> their standar deviation. Count the number of candidates in the dataset that fall in either of these regions to give the number of background and output this.</p>
 <ul>
 <li>Define the signal region to be</li>
 </ul>
-<p><code>mean - stddev &lt;= mass and mass &lt; mean + stddev</code>,</p>
+<p><code>mean - stddev*0.8 &lt;= mass and mass &lt; mean + stddev*0.8</code>,</p>
 <p>where <code>mean</code> is the mean of the masses. Count the number of candidates in this region to get the number of signal plus background. Subtract from this the number of background to get the number of signal and output this.</p>
 <ul>
-<li>This is a technique known as sideband subtraction.</li>
+<li>This is a technique known as sideband subtraction. The factor of 0.8 is required so that the regions don’t overlap. The signal region (blue) and background regions (red) look like this:</li>
 </ul></li>
+</ol>
+<p><img src = 'D0Mass-WBoxes.png' width = 400></p>
+<ol start="4" type="1">
 <li><p>Next we want to reduce the background as much as possible. As said previously, we expect the <code>ipchi2</code> values to be smaller for signal than for background, so we can discard candidates with <code>ipchi2</code> above a certain value.</p>
 <ul>
 <li>Divide the candidates in the dataset into two sets: one with <code>ipchi2 &lt; 13</code> and one with <code>ipchi2 &gt;= 13</code>.</li>
