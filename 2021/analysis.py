@@ -2,6 +2,7 @@ from Database import Database
 import ROOT
 from pprint import pprint
 from matplotlib import pyplot as plt
+from matplotlib import patches
 
 def in_bkg_region(entry):
     return (entry.mass < massmin + massstddev
@@ -61,36 +62,51 @@ def signal_background_distribution(db, attr, nbins, vmin, vmax):
     return counts
 
 
-with open('D0KpiData.csv') as inputfile:
-    db = Database(csvfile = inputfile)
-
-def plot(db, attr, title, label, savename):
-    histo = plt.hist(db.iterator(attr), bins = 100, label = label)
+def plot(db, attr, title, label, savename, ax = plt):
+    histo = ax.hist(db.iterator(attr), bins = 100, label = label)
     plt.xlabel(title)
     plt.ylabel('N. candidates')
     plt.savefig(savename)
-
+    return histo
     
-def plot_mass(db, label, savename):
-    plot(db, 'mass', 'D0 mass [MeV]', label, savename)
 
-plt.yscale('log')
-plot(db, 'decaytime', 'D0 decay time [ps]', 'All', 'D0Time-NoCuts.png')
-plt.clf()
-plt.yscale('linear')
+def plot_mass(db, label, savename, ax = plt):
+    return plot(db, 'mass', 'D0 mass [MeV]', label, savename, ax)
 
-plot_mass(db, 'All', 'D0Mass-NoCuts.png')
+
+with open('D0KpiData.csv') as inputfile:
+    db = Database(csvfile = inputfile)
 
 f = ROOT.TFile('MasterclassData.root')
 tree = f.DecayTree
+
+plt.yscale('log')
+timehisto = plot(db, 'decaytime', 'D0 decay time [ps]', 'All', 'D0Time-NoCuts.png')
+plt.clf()
+plt.yscale('linear')
+
+massfig, massax = plt.subplots()
+masshisto = plot_mass(db, 'All', 'D0Mass-NoCuts.png', massax)
 
 massstats = db.stats('mass')
 massstddev = massstats['stddev']
 massmin = round(massstats['min'], 0)
 massmax = round(massstats['max'], 0)
 massmean = massstats['mean']
-
 print('mass min:', massmin, 'max:', massmax, 'mean:', round(massmean, 2), 'stddev:', round(massstddev, 2))
+massstddev *= 0.8
+
+massax.add_patch(patches.Rectangle((massmin, 0), massstddev, max(masshisto[0]),
+                                   color = 'red', fill = False, hatch = 'X'))
+massax.add_patch(patches.Rectangle((massmax - massstddev, 0), massstddev, max(masshisto[0]),
+                                   color = 'red', fill = False, hatch = 'X'))
+massax.add_patch(patches.Rectangle((massmean - massstddev, 0), 2*massstddev, max(masshisto[0]),
+                                   color = 'blue', fill = False, hatch = 'X'))
+plt.savefig('D0Mass-WBoxes.png')
+plt.clf()
+
+masshisto = plot_mass(db, 'All', 'D0Mass-NoCuts.png')
+                 
 timestats = db.print_stats('decaytime')
 print('lifetime:', timestats['mean'] - timestats['min'])
 
@@ -126,8 +142,8 @@ dbrejected = dboriginal.filter(lambda entry : entry.pt < optcut or entry.ipchi2 
 nsigcut, nbkgcut = count_signal_background(db)
 print('pt cut:', optcut, 'sig sig:', maxsig, 'nsig:', nsigcut, 'nbkg:', nbkgcut)
 
-plot_mass(db, 'Accepted', 'D0Mass-WithCuts.png')
-plot_mass(dbrejected, 'Rejected', 'D0Mass-WithCuts.png')
+massaccepted = plot_mass(db, 'Accepted', 'D0Mass-WithCuts.png')
+massrejected = plot_mass(dbrejected, 'Rejected', 'D0Mass-WithCuts.png')
 plt.legend()
 plt.savefig('D0Mass-WithCuts.png')
 
