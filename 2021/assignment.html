@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>assignment</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="supapyt-2021-assignment">SUPAPYT 2021 assignment</h1>
+<p>The file <a href="D0KpiData.csv">here</a> contains data recorded by the LHCb experiment at CERN and shared via the <a href="https://opendata.cern.ch/record/401">CERN Open Data Portal</a>. It contains information on 88,540 reconstructed decays of the D0 meson decaying to a kaon and pion which can be used to measure the lifetime of the D0 meson. The assignment is to do this measurement using python with only functionality from the <a href="https://docs.python.org/3/tutorial/stdlib.html">Standard Library</a> (so no <code>numpy</code>, <code>pandas</code>, etc - the full list of allowed modules is <a href="https://docs.python.org/3/library/index.html">here</a>).</p>
+<p>The reconstructed candidates are a mixture of signal and background. There are four columns in the dataset for each candidate:</p>
+<ul>
+<li><code>mass</code>: the reconstructed mass of the D0 in MeV. This follows a Gaussian distribution for signal and a flat distribution for background.</li>
+<li><code>decaytime</code>: the reconstructed proper decay time of the D0 in picoseconds [ps]. This follows an exponential distribution for signal and a complicated distribution for background.</li>
+<li><code>pt</code>: the transverse momentum of the D0 in MeV. This is expected generally to be larger for signal than for background.</li>
+<li><code>ipchi2</code>: the impact parameter chi-squared of the D0, which is unitless. This is a measure of how compatible the D0 is with having originated in the pp collision provided by the LHC. It’s thus expected to be smaller for signal than for background (which can originate from other processes).</li>
+</ul>
+<p>The goal is to remove as much background as possible while retaining as much signal as possible, then subtract the remaining background and calculate the mean decay time of the signal, which gives the lifetime.</p>
+<p>In order to achieve this, write a script/module/package in python, using only <a href="https://docs.python.org/3/library/index.html">Standard Library</a> functionality, to:</p>
+<ol type="1">
+<li>Read in the <a href="D0KpiData.csv">data file</a> (the <a href="https://docs.python.org/3/library/csv.html"><code>csv</code></a> module can help with this). Find the minimum, maximum, mean and standard deviation of the values in the <code>mass</code> column and output these to the terminal.
+<ul>
+<li>We won’t do any visualisation of the data as the Standard Library doesn’t contain any histogramming functionality, but if you like (for no extra credit) you can install <code>matplotlib</code> and make a histogram of the masses with, eg</li>
+</ul>
+<pre><code>from matplotlib import pyplot as plt
+histo = plt.hist(masses, bins = 100)
+plt.xlabel(&#39;D0 mass [MeV]&#39;)
+plt.ylabel(&#39;N. candidates&#39;)
+plt.show()</code></pre>
+where <code>masses</code> is the sequence of mass values from the data file. You’ll get something like this:</li>
+</ol>
+<p><img src = 'D0Mass-NoCuts.png' width = 400></p>
+<p>so you can see that the Gaussian bump in the middle is the signal, and the background is fairly flat across the whole range.</p>
+<ol start="2" type="1">
+<li>Similarly find and output the minimum, maximum, mean and standard deviation of the <code>decaytime</code> values.
+<ul>
+<li>There’s a cut-off at low decay time values as this region is dominated by backgrounds. To get the lifetime, you need to subtract the minimum from the mean. This actually gives something remarkably close to the <a href="https://pdglive.lbl.gov/DataBlock.action?node=S032T&amp;home=MXXX035">known D0 lifetime</a> of 0.4101 +/- 0.0015 ps. However, the standard deviation of an exponential distribution should be the same as its mean, and in this case they’re very different as the backgrounds are skewing the data. You can see that if you plot the decay time with <code>matplotlib</code> and use a log scale that its distribution clearly isn’t a simple exponential (which would be a straight line on a log scale):</li>
+</ul></li>
+</ol>
+<p><img src = 'D0Time-NoCuts.png' width = 400></p>
+<ul>
+<li>This is why we need to subtract the background distribution.</li>
+</ul>
+<ol start="3" type="1">
+<li>The regions near the edges of the mass distribution are entirely background. Since the background is flat in mass we can use these regions to estimate the number of background under the signal peak, and thus the number of signal.
+<ul>
+<li>Taking the values found in problem 1, define the background region to be (mass min., mass. min + mass std. dev.) and (mass max. - mass std. dev, mass max.). Count the number of candidates in the dataset that fall in either of these regions to give the number of background and output this.</li>
+<li>Define the signal region to be (mass mean - mass std. dev, mass mean + mass std. dev). Count the number of candidates in this region to get the number of signal plus background. Subtract from this the number of background to get the number of signal and output this.</li>
+<li>This is a technique known as sideband subtraction.</li>
+</ul></li>
+<li>Next we want to reduce the background as much as possible. As said previously, we expect the <code>ipchi2</code> values to be smaller for signal than for background, so we can discard candidates with <code>ipchi2</code> above a certain value.
+<ul>
+<li>Divide the candidates in the dataset into two sets: one with <code>ipchi2 &lt; 13</code> and one with <code>ipchi2 &gt;=13</code>.</li>
+<li>Using the same technique as in problem 3 (still using the values from problem 1 to define the mass regions), find the number of signal and the number of background for each of the two datasets and output these.</li>
+<li>You should see that the dataset with <code>ipchi2 &gt;= 13</code> is almost entirely background, so we can discard it.</li>
+</ul></li>
+<li>Similarly, we expect <code>pt</code> values generally to be higher for signal than for background, so we can discard candidates with <code>pt</code> less than a certain value.
+<ul>
+<li>Take the dataset with <code>ipchi2 &lt; 13</code> and find the minimum value of <code>pt</code>.</li>
+<li>Select candidates with <code>pt &gt; (pt min.) + 10</code> and (using the method from problem 3) determine the number of signal and background.</li>
+<li>Determine the “signal significance” as (n. signal)/sqrt(n. signal + 2*(n. background)).</li>
+<li>Continue to increase the minimum requirement on <code>pt</code> in steps of 10 (ie, <code>pt &gt; (pt min.) + 20</code>, <code>pt &gt; (pt min.) + 30</code>, etc) up to 100 steps (<code>pt &gt; (pt min.) + 1000</code>). At each step, re-evaluate the number of signal and background, and the signal significance.</li>
+<li>Find the minimum requirement on <code>pt</code> that gives the maximum value of the signal significance. Keep only candidates that satisfy this requirement.</li>
+<li>We now have only candidates with <code>ipchi2 &lt; 13 and pt &gt; (optimal value)</code>. In order to see the effects of this, you could plot the mass distribution for the candidates we’ve kept and the candidates we’ve discarded, which looks like this:</li>
+</ul></li>
+</ol>
+<p><img src = 'D0Mass-WithCuts.png' width = 400></p>
+<ul>
+<li>You can see that there’s hardly any signal peak in the candidates that we’ve rejected, so we’ve thrown away almost entirely backgrounds.</li>
+</ul>
+<ol start="6" type="1">
+<li><p>Having cleaned up our data, we can now determine the lifetime.</p>
+<ul>
+<li>Take the dataset with <code>ipchi2 &lt; 13 and pt &gt; (optimal value)</code>.</li>
+<li>Take the minimum and maximum decay-time values from problem 2 and calculate a decay-time interval <code>delta = (max - min)/100</code>.</li>
+<li>Divide the data into 100 datasets each with a different decay-time interval <code>min + i*delta &lt;= decaytime and decaytime &lt; min + (i+1)*delta</code> for <code>i</code> between 0 and 99.</li>
+<li>For each of the 100 datasets, calculate the number of signal (using problem 3) and the middle of the decay-time interval <code>min + (i+0.5)*delta</code>. This gives us the decay-time distribution only for signal (having subtracted the background).</li>
+<li>Calculate the mean decay time for signal as</li>
+</ul>
+<p><code>mean = sum(nsignal[i] * decaytime[i])/sum(nsignal[i])</code></p>
+<p>and the mean decay time squared as</p>
+<p><code>meansq = sum(nsignal[i] * decaytime[i]**2)/sum(nsignal[i])</code>,</p>
+<p>where <code>nsignal[i]</code> is the number of signal in decay-time interval <code>i</code> and <code>decaytime[i]</code> is the middle of the decay-time interval for interval <code>i</code>.</p>
+<ul>
+<li>Calculate the lifetime of the signal as <code>mean - minimum</code>, as in problem 2. Also calculate the standard deviation as <code>(meansq - mean**2)**.5</code> and check that this agrees with the measured lifetime (within 0.005 ps).</li>
+<li>This gives us a measurement of the lifetime of the D0 that should agree with <a href="https://pdglive.lbl.gov/DataBlock.action?node=S032T&amp;home=MXXX035">known D0 lifetime</a> of 0.4101 +/- 0.0015 ps within around 0.01 ps! Not bad for such a simple analysis method.</li>
+<li>In <code>matplotlib</code>, you could plot the signal decay-time distribution with, eg:</li>
+</ul>
+<pre><code>plt.clf()
+hsig = plt.plot(timevals, nsigvals)
+plt.xlabel(&#39;D0 decay time [ps]&#39;)
+plt.ylabel(&#39;Yield&#39;)
+plt.yscale(&#39;log&#39;)
+plt.show()</code></pre>
+<p>where <code>timevals</code> is the sequence of middle decay-time values, and <code>nsigvals</code> is the sequence of number of signal in each interval.</p>
+<ul>
+<li>If you also do the same for the background you get something like this:</li>
+</ul></li>
+</ol>
+<p><img src = 'D0Time-wCuts-SigBkg.png' width = 400></p>
+<p>so you can see that the signal distribution is a nice exponential (straight line on log scale), and that the remaining background tends to have lower decay times.</p>
+<p>That’s it! Hopefully all the steps are clear. Please <a href="mailto:michael.alexander@glasgsow.ac.uk">email me</a> if not.</p>
+<p>If you want an extra challenge (but no extra credit), you could try to evaluate an uncertainty on the lifetime we’ve obtained (in which case I’d recommend installing and using the <code>uncertainties</code> package), or you could check out <a href="https://projecteuler.net/">Project Euler</a>.</p>
+</body>
+</html>
