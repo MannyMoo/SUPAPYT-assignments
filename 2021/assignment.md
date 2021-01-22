@@ -14,7 +14,7 @@ The goal is to remove as much background as possible while retaining as much sig
 In order to achieve this, write a script/module/package in python, using only [Standard Library](https://docs.python.org/3/library/index.html) functionality, to do the following:
 
 1. Read in the [data file](D0KpiData.csv) (the [`csv`](https://docs.python.org/3/library/csv.html) module can help with this). Find the minimum, maximum, mean and standard deviation of the values in the `mass` column and output these to the terminal.
-	- We won't do any visualisation of the data as the Standard Library doesn't contain any histogramming functionality, but if you like (for no extra credit) you can install `matplotlib` and make a histogram of the masses with, eg
+	- You're not required to do any visualisation of the data as the Standard Library doesn't contain any histogramming functionality, but if you like (for no extra credit) you can install `matplotlib` and make a histogram of the masses with, eg
 ```
 from matplotlib import pyplot as plt
 histo = plt.hist(masses, bins = 100)
@@ -47,7 +47,7 @@ so you can see that the Gaussian bump in the middle is the signal, and the backg
 	where `min` and `max` are the minimum and maximum of the masses and `stddev` their standar deviation. Count the number of candidates in the dataset that fall in either of these regions to give the number of background and output this.
 	- Define the signal region to be
 	
-	`mean - stddev <= mass && mass < mean + stddev`,
+	`mean - stddev <= mass and mass < mean + stddev`,
 	
 	where `mean` is the mean of the masses. Count the number of candidates in this region to get the number of signal plus background. Subtract from this the number of background to get the number of signal and output this.
 	- This is a technique known as sideband subtraction.
@@ -76,7 +76,7 @@ so you can see that the Gaussian bump in the middle is the signal, and the backg
 	
 6. Having cleaned up our data, we can now determine the lifetime.
 	- Take the dataset with `ipchi2 < 13 and pt > (optimal value)`.
-	- Take the minimum and maximum decay-time values from problem 2 and calculate a decay-time interval `delta = (max - min)/100`.
+	- Take the minimum and maximum decay-time values from problem 2 and calculate a decay-time interval width `delta = (max - min)/100`.
 	- Divide the data into 100 datasets each with a different decay-time interval 
 	
 	`min + i*delta <= decaytime and decaytime < min + (i+1)*delta` 
