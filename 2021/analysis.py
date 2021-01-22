@@ -1,22 +1,7 @@
 from Database import Database
 import ROOT
 from pprint import pprint
-
-with open('D0KpiData.csv') as inputfile:
-    db = Database(csvfile = inputfile)
-
-
-f = ROOT.TFile('MasterclassData.root')
-tree = f.DecayTree
-
-massstats = db.stats('mass')
-massstddev = massstats['stddev']
-massmin = round(massstats['min'], 0)
-massmax = round(massstats['max'], 0)
-massmean = massstats['mean']
-
-print('mass min:', massmin, 'max:', massmax, 'mean:', round(massmean, 2), 'stddev:', round(massstddev, 2))
-
+from matplotlib import pyplot as plt
 
 def in_bkg_region(entry):
     return (entry.mass < massmin + massstddev
@@ -75,6 +60,40 @@ def signal_background_distribution(db, attr, nbins, vmin, vmax):
         vmin = vmaxbin
     return counts
 
+
+with open('D0KpiData.csv') as inputfile:
+    db = Database(csvfile = inputfile)
+
+def plot(db, attr, title, label, savename):
+    histo = plt.hist(db.iterator(attr), bins = 100, label = label)
+    plt.xlabel(title)
+    plt.ylabel('N. candidates')
+    plt.savefig(savename)
+
+    
+def plot_mass(db, label, savename):
+    plot(db, 'mass', 'D0 mass [MeV]', label, savename)
+
+plt.yscale('log')
+plot(db, 'decaytime', 'D0 decay time [ps]', 'All', 'D0Time-NoCuts.png')
+plt.clf()
+plt.yscale('linear')
+
+plot_mass(db, 'All', 'D0Mass-NoCuts.png')
+
+f = ROOT.TFile('MasterclassData.root')
+tree = f.DecayTree
+
+massstats = db.stats('mass')
+massstddev = massstats['stddev']
+massmin = round(massstats['min'], 0)
+massmax = round(massstats['max'], 0)
+massmean = massstats['mean']
+
+print('mass min:', massmin, 'max:', massmax, 'mean:', round(massmean, 2), 'stddev:', round(massstddev, 2))
+timestats = db.print_stats('decaytime')
+print('lifetime:', timestats['mean'] - timestats['min'])
+
 nsig, nbkg = count_signal_background(db)
 print('N. signal:', nsig, 'n. bkg:', nbkg)
 
@@ -84,13 +103,14 @@ print('IP chi2 cut:')
 # pprint(cutsigsipchi2)
 # print(optipchi2, maxsigipchi2)
 
-for ipmin, ipmax in (13, float('inf')), (0, 13):
+ipchi2cut = 13
+for ipmin, ipmax in (ipchi2cut, float('inf')), (0, ipchi2cut):
     cutdb, nsig, nbkg = count_with_cut(db, 'ipchi2', ipmin, ipmax)
     print('ipmin:', ipmin, 'ipmax:', ipmax)
     print('N. signal:', nsig, 'n. bkg:', nbkg)
 
 dboriginal = db
-db = filter_range(db, 'ipchi2', 0, 20)
+db = filter_range(db, 'ipchi2', 0, ipchi2cut)
 
 print('pt cut:')
 ptstats = db.stats('pt')
@@ -101,8 +121,15 @@ pprint(cutsigs)
 
 dbipchi2cut = db
 db = filter_range(db, 'pt', optcut, float('inf'))
+dbrejected = dboriginal.filter(lambda entry : entry.pt < optcut or entry.ipchi2 > ipchi2cut)
+
 nsigcut, nbkgcut = count_signal_background(db)
 print('pt cut:', optcut, 'sig sig:', maxsig, 'nsig:', nsigcut, 'nbkg:', nbkgcut)
+
+plot_mass(db, 'Accepted', 'D0Mass-WithCuts.png')
+plot_mass(dbrejected, 'Rejected', 'D0Mass-WithCuts.png')
+plt.legend()
+plt.savefig('D0Mass-WithCuts.png')
 
 timestats = db.stats('decaytime')
 tmin = round(timestats['min'], 2)
@@ -110,5 +137,18 @@ tmax = round(timestats['max'], 2)
 
 counts = signal_background_distribution(db, 'decaytime', 100, tmin, tmax)
 pprint(counts)
-print(sum(count['nsig'] * (count['vmin']+count['vmax'])/2. for count in counts)/
-      sum(count['nsig'] for count in counts) - tmin)
+tmean = (sum(count['nsig'] * (count['vmin']+count['vmax'])/2. for count in counts)/
+         sum(count['nsig'] for count in counts))
+tmeansq = (sum(count['nsig'] * ((count['vmin']+count['vmax'])/2.)**2. for count in counts)/
+           sum(count['nsig'] for count in counts))
+print(tmean - tmin, (tmeansq - tmean**2)**.5)
+
+plt.clf()
+timevals = tuple((count['vmin']+count['vmax'])/2. for count in counts)
+hsig = plt.plot(timevals, [count['nsig'] for count in counts], label = 'Signal')
+hbkg = plt.plot(timevals, [count['nbkg'] for count in counts], label = 'Background')
+plt.xlabel('D0 decay time [ps]')
+plt.ylabel('Yield')
+plt.yscale('log')
+plt.legend()
+plt.savefig('D0Time-wCuts-SigBkg.png')

@@ -199,7 +199,8 @@ class Database(object) :
         stats = self.stats(attr)
         for attr in 'n', 'min', 'max', 'mean', 'median', 'stddev' :
             print(attr.ljust(6), ':', form.format(stats[attr]))
-            
+        return stats
+    
     def sort(self, attr) :
         '''Sort the entries according to the value of the given attribute.'''
         if isinstance(attr, str) :
