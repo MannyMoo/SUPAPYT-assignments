@@ -3,6 +3,10 @@ import ROOT
 from pprint import pprint
 from matplotlib import pyplot as plt
 from matplotlib import patches
+try:
+    from uncertainties import ufloat
+except ImportError:
+    pass
 
 def in_bkg_region(entry):
     return (entry.mass < massmin + massstddev
@@ -16,6 +20,11 @@ def in_signal_region(entry):
 def count_signal_background(db):
     nbkg = len(db.filter(in_bkg_region))
     nsigregion = len(db.filter(in_signal_region))
+    try:
+        nbkg = ufloat(nbkg, nbkg**.5)
+        nsigregion = ufloat(nsigregion, nsigregion**.5)
+    except NameError:
+        pass
     return nsigregion - nbkg, nbkg
 
 
@@ -161,8 +170,12 @@ print(tmean - tmin, (tmeansq - tmean**2)**.5)
 
 plt.clf()
 timevals = tuple((count['vmin']+count['vmax'])/2. for count in counts)
-hsig = plt.plot(timevals, [count['nsig'] for count in counts], label = 'Signal')
-hbkg = plt.plot(timevals, [count['nbkg'] for count in counts], label = 'Background')
+try:
+    hsig = plt.plot(timevals, [count['nsig'].nominal_value for count in counts], label = 'Signal')
+    hbkg = plt.plot(timevals, [count['nbkg'].nominal_value for count in counts], label = 'Background')
+except AttributeError:
+    hsig = plt.plot(timevals, [count['nsig'] for count in counts], label = 'Signal')
+    hbkg = plt.plot(timevals, [count['nbkg'] for count in counts], label = 'Background')
 plt.xlabel('D0 decay time [ps]')
 plt.ylabel('Yield')
 plt.yscale('log')

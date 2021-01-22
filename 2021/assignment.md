@@ -50,7 +50,9 @@ so you can see that the Gaussian bump in the middle is the signal, and the backg
 	`mean - stddev*0.8 <= mass and mass < mean + stddev*0.8`,
 	
 	where `mean` is the mean of the masses. Count the number of candidates in this region to get the number of signal plus background. Subtract from this the number of background to get the number of signal and output this.
-	- This is a technique known as sideband subtraction. The factor of 0.8 is required so that the regions don't overlap.
+	- This is a technique known as sideband subtraction. The factor of 0.8 is required so that the regions don't overlap. The signal region (blue) and background regions (red) look like this:
+	
+<img src = 'D0Mass-WBoxes.png' width = 400>
    
 4. Next we want to reduce the background as much as possible. As said previously, we expect the `ipchi2` values to be smaller for signal than for background, so we can discard candidates with `ipchi2` above a certain value.
 	- Divide the candidates in the dataset into two sets: one with `ipchi2 < 13` and one with `ipchi2 >= 13`.
