@@ -1,0 +1,36 @@
+1)
+Find the minimum, maximum, mean and standard deviation of the values in the 
+`mass` column and output these to the terminal.
+mass min: 1815.0006103515625 max: 1914.9913330078125 mean: 1864.1378845835259 stddev: 25.248816549582862
+
+2)
+Similarly find and output the minimum, maximum, mean and standard deviation of 
+the `decaytime` values.
+n      : 88540
+min    : 0.15000060375314206
+max    : 5.998229142278433
+mean   : 0.5571723937374018
+median : 0.26431972219143063
+stddev : 0.7747293814286734
+lifetime: 0.40717178998425974
+
+3)
+Count the number of signal and background
+N. signal: 21656 n. bkg: 26769
+
+4)
+Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13
+ipmin: 13 ipmax: inf
+N. signal: 1829 n. bkg: 11043
+ipmin: 0 ipmax: 13
+N. signal: 19827 n. bkg: 15726
+
+5)
+Find the optimal `pt` cut value and the signal significance that it gives
+pt cut:
+pt cut: 2635.657958984375 sig sig: 88.39440255427394 nsig: 18427 nbkg: 12515
+
+6)
+Calculate the lifetime from the mean of the background subtracted decay-time distribution
+as well as the standard deviation of the distribution.
+0.42280671026211525 0.4243281626339032

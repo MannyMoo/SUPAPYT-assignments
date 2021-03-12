@@ -1,12 +1,14 @@
+#!/usr/bin/env python
+
 from Database import Database
 import ROOT
 from pprint import pprint
 from matplotlib import pyplot as plt
 from matplotlib import patches
-try:
-    from uncertainties import ufloat
-except ImportError:
-    pass
+# try:
+#     from uncertainties import ufloat
+# except ImportError:
+#     pass
 
 def in_bkg_region(entry):
     return (entry.mass < massmin + massstddev
@@ -99,10 +101,15 @@ masshisto = plot_mass(db, 'All', 'D0Mass-NoCuts.png', massax)
 
 massstats = db.stats('mass')
 massstddev = massstats['stddev']
-massmin = round(massstats['min'], 0)
-massmax = round(massstats['max'], 0)
+massmin = massstats['min'] #round(massstats['min'], 0)
+massmax = massstats['max'] #round(massstats['max'], 0)
 massmean = massstats['mean']
-print('mass min:', massmin, 'max:', massmax, 'mean:', round(massmean, 2), 'stddev:', round(massstddev, 2))
+print('''1)
+Find the minimum, maximum, mean and standard deviation of the values in the 
+`mass` column and output these to the terminal.''')
+print('mass min:', massmin, 'max:', massmax, 'mean:', massmean, 'stddev:', massstddev)
+print()
+
 massstddev *= 0.8
 
 massax.add_patch(patches.Rectangle((massmin, 0), massstddev, max(masshisto[0]),
@@ -115,14 +122,22 @@ plt.savefig('D0Mass-WBoxes.png')
 plt.clf()
 
 masshisto = plot_mass(db, 'All', 'D0Mass-NoCuts.png')
-                 
+
+print('''2)
+Similarly find and output the minimum, maximum, mean and standard deviation of 
+the `decaytime` values.''')
 timestats = db.print_stats('decaytime')
 print('lifetime:', timestats['mean'] - timestats['min'])
+print()
 
+print('''3)
+Count the number of signal and background''')
 nsig, nbkg = count_signal_background(db)
 print('N. signal:', nsig, 'n. bkg:', nbkg)
+print()
 
-print('IP chi2 cut:')
+print('''4)
+Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13''')
 
 # optipchi2, maxsigipchi2, cutsigsipchi2 = optimise_cut(dboriginal, 'ipchi2', 0, 50, 1, False)
 # pprint(cutsigsipchi2)
@@ -133,16 +148,20 @@ for ipmin, ipmax in (ipchi2cut, float('inf')), (0, ipchi2cut):
     cutdb, nsig, nbkg = count_with_cut(db, 'ipchi2', ipmin, ipmax)
     print('ipmin:', ipmin, 'ipmax:', ipmax)
     print('N. signal:', nsig, 'n. bkg:', nbkg)
+print()
 
 dboriginal = db
 db = filter_range(db, 'ipchi2', 0, ipchi2cut)
+
+print('''5)
+Find the optimal `pt` cut value and the signal significance that it gives''')
 
 print('pt cut:')
 ptstats = db.stats('pt')
 delta = 10
 ptcut = ptstats['min']
 optcut, maxsig, cutsigs = optimise_cut(db, 'pt', ptstats['min'], 5000, 10)
-pprint(cutsigs)
+# pprint(cutsigs)
 
 dbipchi2cut = db
 db = filter_range(db, 'pt', optcut, float('inf'))
@@ -150,6 +169,7 @@ dbrejected = dboriginal.filter(lambda entry : entry.pt < optcut or entry.ipchi2 
 
 nsigcut, nbkgcut = count_signal_background(db)
 print('pt cut:', optcut, 'sig sig:', maxsig, 'nsig:', nsigcut, 'nbkg:', nbkgcut)
+print()
 
 massaccepted = plot_mass(db, 'Accepted', 'D0Mass-WithCuts.png')
 massrejected = plot_mass(dbrejected, 'Rejected', 'D0Mass-WithCuts.png')
@@ -160,8 +180,12 @@ timestats = db.stats('decaytime')
 tmin = round(timestats['min'], 2)
 tmax = round(timestats['max'], 2)
 
+print('''6)
+Calculate the lifetime from the mean of the background subtracted decay-time distribution
+as well as the standard deviation of the distribution.''')
+
 counts = signal_background_distribution(db, 'decaytime', 100, tmin, tmax)
-pprint(counts)
+# pprint(counts)
 tmean = (sum(count['nsig'] * (count['vmin']+count['vmax'])/2. for count in counts)/
          sum(count['nsig'] for count in counts))
 tmeansq = (sum(count['nsig'] * ((count['vmin']+count['vmax'])/2.)**2. for count in counts)/
