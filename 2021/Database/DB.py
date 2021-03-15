@@ -12,18 +12,19 @@ class Database(object) :
 
     class DBIterator(object) :
         '''Iterator over an attribute of the entries in the database.'''
-        __slots__ = ('db', 'getter')
+        __slots__ = ('db', 'getter', 'selection')
         
-        def __init__(self, db, attr) :
+        def __init__(self, db, attr, selection = None) :
             '''Constructor, takes the Database and the name of the attribute 
-            over which to iterate.'''
+            over which to iterate and optionally a selection function.'''
             
             self.db = db
             if isinstance(attr, str) :
                 self.getter = lambda entry : getattr(entry, attr)
             else :
                 self.getter = attr
-
+            self.selection = selection
+            
             # Just to check that the db Entry class has the given attr,
             # will raise an exception if not.
             if self.db.entries :
@@ -32,42 +33,40 @@ class Database(object) :
 
         def __iter__(self) :
             '''Iterate over the entries.'''
-            return (self.getter(entry) for entry in self.db.entries)
-
+            if not self.selection:
+                return (self.getter(entry) for entry in self.db.entries)
+            return (self.getter(entry) for entry in self.db.entries if self.selection(entry))
+            
         def __len__(self) :
             '''Get the number of elements in the sequence.'''
+            if not self.selection:
+                return len(self.db.entries)
+            # This is required to use functions from the statistics module.
+            # It's a little sub-optimal as it requires looping over all
+            # the elements to get the number that're selected, but still
+            # preferable to reimplementing the stats functions.
+            n = 0
+            for i in self :
+                n += 1
+            return n
 
-            return len(self.db.entries)
-        
+            
     class DBNonNullIterator(DBIterator) :
         '''Iterator over entries in the Database with non-null values of 
         a given attribute.'''
 
         __slots__ = ('null',)
         
-        def __init__(self, db, attr, null = '') :
+        def __init__(self, db, attr, null = '', selection = None) :
             '''Constructor, takes the Database and the name of the attribute 
             over which to iterate.'''
             super().__init__(db, attr)
             self.null = null
-            
-        def __iter__(self) :
-            '''Iterate over the entries with non-null values.'''
-            return (self.getter(entry) for entry in self.db.entries \
-                    if self.getter(entry) != self.null)
-
-        def __len__(self) :
-            '''Get the number of elements in the sequence.'''
-            # This is required to use functions from the statistics module.
-            # It's a little sub-optimal as it requires looping over all
-            # the elements to get the number that're non-null, but still
-            # preferable to reimplementing the stats functions.
-            # 'n' could be cached, but then we'd have to check every time
-            # if the DB has changed at all, which would probably be slower.
-            n = 0
-            for i in self :
-                n += 1
-            return n
+            if selection:
+                self.selection = lambda entry : entry != null and selection(entry)
+            else:
+                self.selection = lambda entry : entry != null
+                
         
     def __init__(self, entries = [], csvfile = None, readonly = True) :
         '''Constructor. Can take the list of entries and/or an open file in csv 
@@ -87,6 +86,12 @@ class Database(object) :
         If attrs is given it defines the names of the columns in the file; 
         if not given the names are taken from the first line in the file.'''
 
+        # If it's a file name, open and read it
+        if isinstance(datafile, str):
+            with open(datafile) as fdata:
+                self.read_from_csv(fdata, readonly, attrs, **kwargs)
+            return
+        
         if not attrs :
             reader = DictReader(datafile, **kwargs)
         else :
@@ -107,14 +112,14 @@ class Database(object) :
             for entry in self :
                 writer.writerow({attr : getattr(entry, attr) for attr in attrs})
             
-    def iterator(self, attr) :
+    def iterator(self, attr, selection = None) :
         '''Get an iterator over an attribute of the entries in the db.'''
-        return Database.DBIterator(self, attr)
+        return Database.DBIterator(self, attr, selection = selection)
 
-    def non_null_iterator(self, attr, null = '') :
+    def non_null_iterator(self, attr, null = '', selection = None) :
         '''Get an iterator over an attribute of the entries in the db 
         for entries with non-null values.'''
-        return Database.DBNonNullIterator(self, attr, null)
+        return Database.DBNonNullIterator(self, attr, null, selection = selection)
     
     def _stat(self, attr, operation, default = None, null = '') :
         '''Calculate a statistic on the attribute 'attr' using the method
@@ -218,6 +223,10 @@ class Database(object) :
         iterator = self.iterator(attr)
         return self.filter(lambda entry : iterator.getter(entry) == val)
 
+    def count(self, test):
+        '''Count the number of entries passing the test function.'''
+        return sum(test(entry) for entry in self)
+    
     def min_entry(self, attr, null = ''):
         '''Get the entry with the minimum value of the given attribute.'''
         return min((entry for entry in self if getattr(entry, attr) != null),
