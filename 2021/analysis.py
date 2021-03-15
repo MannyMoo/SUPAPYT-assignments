@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
+'''Assignment solution for SUPAPYT 2021 - finding the lifetime of the D0 meson
+from LHCb data.'''
+
 from Database import Database
-import ROOT
 from pprint import pprint
 from matplotlib import pyplot as plt
 from matplotlib import patches
+from argparse import ArgumentParser
 # Use ufloat if it's available
 try:
+    raise ImportError
     from uncertainties import ufloat
 except ImportError:
     def ufloat(val, err):
@@ -77,7 +81,7 @@ class LHCbDB(Database):
     @staticmethod
     def test_range(attr, vmin, vmax):
         '''Get a function to test if an entry lies in a given range.'''
-        return lambda entry : vmin <= getattr(entry, attr) <= vmax
+        return lambda entry : vmin <= getattr(entry, attr) < vmax
 
 
     titles = {'mass' : 'D0 mass [MeV]',
@@ -222,104 +226,168 @@ class LHCbDB(Database):
             LHCbDB.Distribution('Background', attr, bkgcounts)
 
 
-db = LHCbDB(csvfile = 'D0KpiData.csv')
+def prob1(db):
+    '''1)
+    Find the minimum, maximum, mean and standard deviation of the values in the 
+    `mass` column and output these to the terminal.'''
 
-f = ROOT.TFile('MasterclassData.root')
-tree = f.DecayTree
+    print('Statistics of mass [MeV]:')
+    massstats = db.print_stats('mass', form = '.2f')
+    return massstats
 
-plt.yscale('log')
-timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
-plt.clf()
-plt.yscale('linear')
 
-massfig, massax = plt.subplots()
-masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png', massax)
+def prob2(db):
+    '''2)
+    Similarly find and output the minimum, maximum, mean and standard deviation of 
+    the `decaytime` values.'''
 
-massstats = db.stats('mass')
-massstddev = massstats['stddev']
-massmin = massstats['min'] #round(massstats['min'], 0)
-massmax = massstats['max'] #round(massstats['max'], 0)
-massmean = massstats['mean']
-print('''1)
-Find the minimum, maximum, mean and standard deviation of the values in the 
-`mass` column and output these to the terminal.''')
-print('mass min:', massmin, 'max:', massmax, 'mean:', massmean, 'stddev:', massstddev)
-print()
+    print('Statistics of decaytime [ps]:')
+    timestats = db.print_stats('decaytime', form = '.4f')
+    print('lifetime: {:.4f}'.format(timestats['mean'] - timestats['min']))
+    return timestats
 
-massax.add_patch(patches.Rectangle((massmin, 0), massstddev*0.8, max(masshisto[0]),
-                                   color = 'red', fill = False, hatch = 'X'))
-massax.add_patch(patches.Rectangle((massmax - massstddev*0.8, 0), massstddev*0.8, max(masshisto[0]),
-                                   color = 'red', fill = False, hatch = 'X'))
-massax.add_patch(patches.Rectangle((massmean - massstddev*0.8, 0), 2*massstddev*0.8, max(masshisto[0]),
-                                   color = 'blue', fill = False, hatch = 'X'))
-plt.savefig('D0Mass-WBoxes.png')
-plt.clf()
 
-masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png')
+def prob3(db):
+    '''3)
+    Count the number of signal and background'''
+    db.calculate_mass_ranges()
+    nsig, nbkg = db.count_signal_background()
+    print('N. signal:', nsig)
+    print('N. bkg   :', nbkg)
+    return nsig, nbkg
 
-print('''2)
-Similarly find and output the minimum, maximum, mean and standard deviation of 
-the `decaytime` values.''')
-timestats = db.print_stats('decaytime')
-print('lifetime:', timestats['mean'] - timestats['min'])
-print()
 
-print('''3)
-Count the number of signal and background''')
-db.calculate_mass_ranges()
-nsig, nbkg = db.count_signal_background()
-print('N. signal:', nsig, 'n. bkg:', nbkg)
-print()
+def prob4(db, ipchi2cut):
+    '''4)
+    Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13'''
+    for name, ipmin, ipmax in [('ipchi2 >= ' + str(ipchi2cut), ipchi2cut, float('inf')),
+                               ('ipchi2 < ' + str(ipchi2cut), 0, ipchi2cut)]:
+        nsig, nbkg = db.count_signal_background(LHCbDB.test_range('ipchi2', ipmin, ipmax))
+        print(name)
+        print('N. signal:', nsig)
+        print('N. bkg   :', nbkg)
+    return db.filter(LHCbDB.test_range('ipchi2', 0, ipchi2cut))
 
-print('''4)
-Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13''')
-ipchi2cut = 13
-for ipmin, ipmax in (ipchi2cut, float('inf')), (0, ipchi2cut):
-    nsig, nbkg = db.count_signal_background(LHCbDB.test_range('ipchi2', ipmin, ipmax))
-    print('ipmin:', ipmin, 'ipmax:', ipmax)
-    print('N. signal:', nsig, 'n. bkg:', nbkg)
-print()
 
-dboriginal = db
-db = db.filter(LHCbDB.test_range('ipchi2', 0, ipchi2cut))
+def prob5(db):
+    '''5)
+    Find the optimal `pt` cut value and the signal significance that it gives'''
 
-print('''5)
-Find the optimal `pt` cut value and the signal significance that it gives''')
+    ptstats = db.stats('pt')
+    delta = 10
+    ptcut = ptstats['min']
+    optcut, maxsig, cutsigs = db.optimise_cut('pt', ptstats['min'], 5000, 10)
+    db = db.filter(LHCbDB.test_range('pt', optcut, float('inf')))
+    nsigcut, nbkgcut = db.count_signal_background()
+    print(f'''Optimal pt cut: {optcut:.2f}
+N. signal: {nsigcut}
+N. bkg   : {nbkgcut}
+Signal significance: {maxsig:.2f}''')
+    return db, optcut
 
-print('pt cut:')
-ptstats = db.stats('pt')
-delta = 10
-ptcut = ptstats['min']
-optcut, maxsig, cutsigs = db.optimise_cut('pt', ptstats['min'], 5000, 10)
-# pprint(cutsigs)
 
-dbipchi2cut = db
-db = db.filter(LHCbDB.test_range('pt', optcut, float('inf')))
-dbrejected = dboriginal.filter(lambda entry : entry.pt < optcut or entry.ipchi2 > ipchi2cut)
+def prob6(db):
+    '''6)
+    Calculate the lifetime from the mean of the background subtracted
+    decay-time distribution as well as the standard deviation of the 
+    distribution.'''
 
-nsigcut, nbkgcut = db.count_signal_background()
-print('pt cut:', optcut, 'sig sig:', maxsig, 'nsig:', nsigcut, 'nbkg:', nbkgcut)
-print()
+    timestats = db.stats('decaytime')
+    tmin = round(timestats['min'], 2)
+    tmax = round(timestats['max'], 2)
 
-massaccepted = db.plot('mass', 'Accepted', 'D0Mass-WithCuts.png')
-massrejected = dbrejected.plot('mass', 'Rejected', 'D0Mass-WithCuts.png')
-plt.legend()
-plt.savefig('D0Mass-WithCuts.png')
+    print()
 
-timestats = db.stats('decaytime')
-tmin = round(timestats['min'], 2)
-tmax = round(timestats['max'], 2)
+    sigdist, bkgdist = db.signal_background_distribution('decaytime', 100, tmin, tmax)
+    print('''Lifetime from mean : {0:.4f} ps
+Lifetime from stdev: {1:.4f} ps'''.format(sigdist.mean() - timestats['min'],
+                                          sigdist.stdev()))
 
-print('''6)
-Calculate the lifetime from the mean of the background subtracted decay-time distribution
-as well as the standard deviation of the distribution.''')
+    plt.clf()
+    sigdist.plot()
+    bkgdist.plot()
+    plt.yscale('log')
+    plt.legend()
+    plt.savefig('D0Time-wCuts-SigBkg.png')
 
-sigdist, bkgdist = db.signal_background_distribution('decaytime', 100, tmin, tmax)
-print(sigdist.mean() - timestats['min'], sigdist.stdev())
+    
+def main():
+    '''Solve all the problems.'''
 
-plt.clf()
-sigdist.plot()
-bkgdist.plot()
-plt.yscale('log')
-plt.legend()
-plt.savefig('D0Time-wCuts-SigBkg.png')
+    parser = ArgumentParser()
+    parser.add_argument('fname', nargs = '?', default = 'D0KpiData.csv')
+
+    args = parser.parse_args()
+    
+    db = LHCbDB(csvfile = args.fname)
+
+    print(prob1.__doc__)
+    print()
+    massstats = prob1(db)
+    print()
+    
+    massstddev = massstats['stddev']
+    massmin = massstats['min'] 
+    massmax = massstats['max']
+    massmean = massstats['mean']
+    
+    plt.yscale('log')
+    timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
+    plt.clf()
+    plt.yscale('linear')
+
+    massfig, massax = plt.subplots()
+    masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png', massax)
+    
+    massax.add_patch(patches.Rectangle((massmin, 0), massstddev*0.8, max(masshisto[0]),
+                                       color = 'red', fill = False, hatch = 'X'))
+    massax.add_patch(patches.Rectangle((massmax - massstddev*0.8, 0), massstddev*0.8, max(masshisto[0]),
+                                       color = 'red', fill = False, hatch = 'X'))
+    massax.add_patch(patches.Rectangle((massmean - massstddev*0.8, 0), 2*massstddev*0.8, max(masshisto[0]),
+                                       color = 'blue', fill = False, hatch = 'X'))
+    plt.savefig('D0Mass-WBoxes.png')
+    plt.clf()
+
+    masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png')
+
+    print(prob2.__doc__)
+    print()
+    timestats = prob2(db)
+    print()
+
+    
+    print(prob3.__doc__)
+    print()
+    nsig, nbkg = prob3(db)
+    print()
+
+    
+    print(prob4.__doc__)
+    print()
+    ipchi2cut = 13
+    dboriginal = db
+    db = prob4(db, ipchi2cut)
+    print()
+
+
+    print(prob5.__doc__)
+    print()
+    dbipchi2cut = db
+    db, optcut = prob5(db)
+    dbrejected = dboriginal.filter(lambda entry : entry.pt < optcut or entry.ipchi2 > ipchi2cut)
+    print()
+
+    massaccepted = db.plot('mass', 'Accepted', 'D0Mass-WithCuts.png')
+    massrejected = dbrejected.plot('mass', 'Rejected', 'D0Mass-WithCuts.png')
+    plt.legend()
+    plt.savefig('D0Mass-WithCuts.png')
+
+
+    print(prob6.__doc__)
+    print()
+    prob6(db)
+    print()
+
+
+if __name__ == '__main__':
+    main()

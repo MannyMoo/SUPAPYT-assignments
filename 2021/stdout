@@ -1,36 +1,58 @@
 1)
-Find the minimum, maximum, mean and standard deviation of the values in the 
-`mass` column and output these to the terminal.
-mass min: 1815.0006103515625 max: 1914.9913330078125 mean: 1864.1378845835259 stddev: 25.248816549582862
+    Find the minimum, maximum, mean and standard deviation of the values in the 
+    `mass` column and output these to the terminal.
+
+Statistics of mass [MeV]:
+n      : 88540.00
+min    : 1815.00
+max    : 1914.99
+mean   : 1864.14
+median : 1864.09
+stddev : 25.25
 
 2)
-Similarly find and output the minimum, maximum, mean and standard deviation of 
-the `decaytime` values.
-n      : 88540
-min    : 0.15000060375314206
-max    : 5.998229142278433
-mean   : 0.5571723937374018
-median : 0.26431972219143063
-stddev : 0.7747293814286734
-lifetime: 0.40717178998425974
+    Similarly find and output the minimum, maximum, mean and standard deviation of 
+    the `decaytime` values.
+
+Statistics of decaytime [ps]:
+n      : 88540.0000
+min    : 0.1500
+max    : 5.9982
+mean   : 0.5572
+median : 0.2643
+stddev : 0.7747
+lifetime: 0.4072
 
 3)
-Count the number of signal and background
-N. signal: 21656 n. bkg: 26769
+    Count the number of signal and background
+
+N. signal: 21656.0
+N. bkg   : 26769.0
 
 4)
-Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13
-ipmin: 13 ipmax: inf
-N. signal: 1829 n. bkg: 11043
-ipmin: 0 ipmax: 13
-N. signal: 19827 n. bkg: 15726
+    Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13
+
+ipchi2 >= 13
+N. signal: 1829.0
+N. bkg   : 11043.0
+ipchi2 < 13
+N. signal: 19827.0
+N. bkg   : 15726.0
 
 5)
-Find the optimal `pt` cut value and the signal significance that it gives
-pt cut:
-pt cut: 2635.657958984375 sig sig: 88.39440255427394 nsig: 18427 nbkg: 12515
+    Find the optimal `pt` cut value and the signal significance that it gives
+
+Optimal pt cut: 2635.66
+N. signal: 18427.0
+N. bkg   : 12515.0
+Signal significance: 88.39
 
 6)
-Calculate the lifetime from the mean of the background subtracted decay-time distribution
-as well as the standard deviation of the distribution.
-0.42280671026211525 0.4243281626339032
+    Calculate the lifetime from the mean of the background subtracted
+    decay-time distribution as well as the standard deviation of the 
+    distribution.
+
+
+Lifetime from mean : 0.4228 ps
+Lifetime from stdev: 0.4243 ps
+
