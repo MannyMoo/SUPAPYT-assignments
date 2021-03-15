@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib import patches
 # Use ufloat if it's available
 try:
-    raise ImportError
     from uncertainties import ufloat
 except ImportError:
     def ufloat(val, err):
@@ -18,11 +17,74 @@ except ImportError:
 class LHCbDB(Database):
     '''Derived Database class to hold the LHCb data.'''
 
+    class Distribution:
+        '''The signal or background distribution of a variable.'''
+
+        def __init__(self, label, attr, counts):
+            '''Takes the label for the distribution, the binning attribute,
+            and the list of counts.
+            Entries in "counts" should be dicts with 'n', 'vmin', and 'vmax'
+            elements.'''
+            self.label = label
+            self.attr = attr
+            self.counts = counts
+
+            
+        def moment(self, moment = 1):
+            '''Calculate the moment (mean, mean squared, etc) of the distribution.'''
+            return sum(count['n'] * ((count['vmin'] + count['vmax'])/2.)**moment for count in self.counts)\
+                /sum(count['n'] for count in self.counts)
+
+
+        def mean(self):
+            '''Get the mean of the distribution.'''
+            return self.moment()
+
+
+        def meansq(self):
+            '''Get the mean of the square of the distribution.'''
+            return self.moment(2)
+
+
+        def stdev(self):
+            '''Get the standard deviation of the distribution.'''
+            return (self.meansq() - self.mean()**2)**.5
+
+
+        def bin_values(self):
+            '''Get the values at the centre of each bin.'''
+            return [(count['vmin'] + count['vmax'])/2. for count in self.counts]
+
+
+        def yields(self):
+            '''Get the counts in each bin.'''
+            try:
+                # ufloat counts
+                return [count['n'].nominal_value for count in self.counts]
+            except AttributeError:
+                # Regular float counts
+                return [count['n'] for count in self.counts]
+
+            
+        def plot(self, axis = plt):
+            '''Plot the distribution.'''
+            axis.plot(self.bin_values(), self.yields(), label = self.label)
+            plt.xlabel(LHCbDB.titles[self.attr])
+            plt.ylabel('Yield')
+
+            
     # Static methods don't require an instance of the class to be called
     @staticmethod
     def test_range(attr, vmin, vmax):
         '''Get a function to test if an entry lies in a given range.'''
         return lambda entry : vmin <= getattr(entry, attr) <= vmax
+
+
+    titles = {'mass' : 'D0 mass [MeV]',
+              'decaytime' : 'Decay time [ps]',
+              'pt' : 'PT [MeV]',
+              'ipchi2' : 'IP chi-squared'}
+    
 
     def __init__(self, entries = [], csvfile = None, readonly = True,
                  massmin = None, massmax = None, massmean = None,
@@ -103,18 +165,14 @@ class LHCbDB(Database):
         return nsigplusbkg - nbkg, nbkg
 
     
-    def plot(self, attr, title, label, savename, axis = plt, selection = None):
+    def plot(self, attr, label, savename, axis = plt, selection = None):
         '''Make a histogram of an attribute.'''
         histo = axis.hist(self.iterator(attr, selection = selection),
                           bins = 100, label = label)
-        plt.xlabel(title)
+        plt.xlabel(self.titles[attr])
         plt.ylabel('N. candidates')
         plt.savefig(savename)
         return histo
-
-    
-    def plot_mass(self, label, savename, ax = plt, selection = None):
-        return self.plot('mass', 'D0 mass [MeV]', label, savename, ax, selection)
 
     
     def signal_significance(self, selection = None):
@@ -152,15 +210,16 @@ class LHCbDB(Database):
     def signal_background_distribution(self, attr, nbins, vmin, vmax):
         '''Get the signal and background distributions of the given attribute.'''
         delta = (vmax - vmin)/nbins
-        counts = []
+        sigcounts = []
+        bkgcounts = []
         while vmin < vmax:
             vmaxbin = vmin + delta
             nsig, nbkg = self.count_signal_background(LHCbDB.test_range(attr, vmin, vmaxbin))
-            counts.append({'nsig' : nsig, 'nbkg' : nbkg, 'vmin' : vmin, 'vmax' : vmaxbin})
+            sigcounts.append({'n' : nsig, 'vmin' : vmin, 'vmax' : vmaxbin})
+            bkgcounts.append({'n' : nbkg, 'vmin' : vmin, 'vmax' : vmaxbin})
             vmin = vmaxbin
-        return counts
-
-
+        return LHCbDB.Distribution('Signal', attr, sigcounts), \
+            LHCbDB.Distribution('Background', attr, bkgcounts)
 
 
 db = LHCbDB(csvfile = 'D0KpiData.csv')
@@ -169,12 +228,12 @@ f = ROOT.TFile('MasterclassData.root')
 tree = f.DecayTree
 
 plt.yscale('log')
-timehisto = db.plot('decaytime', 'D0 decay time [ps]', 'All', 'D0Time-NoCuts.png')
+timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
 plt.clf()
 plt.yscale('linear')
 
 massfig, massax = plt.subplots()
-masshisto = db.plot_mass('All', 'D0Mass-NoCuts.png', massax)
+masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png', massax)
 
 massstats = db.stats('mass')
 massstddev = massstats['stddev']
@@ -187,16 +246,16 @@ Find the minimum, maximum, mean and standard deviation of the values in the
 print('mass min:', massmin, 'max:', massmax, 'mean:', massmean, 'stddev:', massstddev)
 print()
 
-massax.add_patch(patches.Rectangle((massmin, 0), massstddev, max(masshisto[0]),
+massax.add_patch(patches.Rectangle((massmin, 0), massstddev*0.8, max(masshisto[0]),
                                    color = 'red', fill = False, hatch = 'X'))
-massax.add_patch(patches.Rectangle((massmax - massstddev, 0), massstddev, max(masshisto[0]),
+massax.add_patch(patches.Rectangle((massmax - massstddev*0.8, 0), massstddev*0.8, max(masshisto[0]),
                                    color = 'red', fill = False, hatch = 'X'))
-massax.add_patch(patches.Rectangle((massmean - massstddev, 0), 2*massstddev, max(masshisto[0]),
+massax.add_patch(patches.Rectangle((massmean - massstddev*0.8, 0), 2*massstddev*0.8, max(masshisto[0]),
                                    color = 'blue', fill = False, hatch = 'X'))
 plt.savefig('D0Mass-WBoxes.png')
 plt.clf()
 
-masshisto = db.plot_mass('All', 'D0Mass-NoCuts.png')
+masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png')
 
 print('''2)
 Similarly find and output the minimum, maximum, mean and standard deviation of 
@@ -242,8 +301,8 @@ nsigcut, nbkgcut = db.count_signal_background()
 print('pt cut:', optcut, 'sig sig:', maxsig, 'nsig:', nsigcut, 'nbkg:', nbkgcut)
 print()
 
-massaccepted = db.plot_mass('Accepted', 'D0Mass-WithCuts.png')
-massrejected = db.plot_mass('Rejected', 'D0Mass-WithCuts.png')
+massaccepted = db.plot('mass', 'Accepted', 'D0Mass-WithCuts.png')
+massrejected = dbrejected.plot('mass', 'Rejected', 'D0Mass-WithCuts.png')
 plt.legend()
 plt.savefig('D0Mass-WithCuts.png')
 
@@ -255,24 +314,12 @@ print('''6)
 Calculate the lifetime from the mean of the background subtracted decay-time distribution
 as well as the standard deviation of the distribution.''')
 
-counts = db.signal_background_distribution('decaytime', 100, tmin, tmax)
-# pprint(counts)
-tmean = (sum(count['nsig'] * (count['vmin']+count['vmax'])/2. for count in counts)/
-         sum(count['nsig'] for count in counts))
-tmeansq = (sum(count['nsig'] * ((count['vmin']+count['vmax'])/2.)**2. for count in counts)/
-           sum(count['nsig'] for count in counts))
-print(tmean - tmin, (tmeansq - tmean**2)**.5)
+sigdist, bkgdist = db.signal_background_distribution('decaytime', 100, tmin, tmax)
+print(sigdist.mean() - timestats['min'], sigdist.stdev())
 
 plt.clf()
-timevals = tuple((count['vmin']+count['vmax'])/2. for count in counts)
-try:
-    hsig = plt.plot(timevals, [count['nsig'].nominal_value for count in counts], label = 'Signal')
-    hbkg = plt.plot(timevals, [count['nbkg'].nominal_value for count in counts], label = 'Background')
-except AttributeError:
-    hsig = plt.plot(timevals, [count['nsig'] for count in counts], label = 'Signal')
-    hbkg = plt.plot(timevals, [count['nbkg'] for count in counts], label = 'Background')
-plt.xlabel('D0 decay time [ps]')
-plt.ylabel('Yield')
+sigdist.plot()
+bkgdist.plot()
 plt.yscale('log')
 plt.legend()
 plt.savefig('D0Time-wCuts-SigBkg.png')
