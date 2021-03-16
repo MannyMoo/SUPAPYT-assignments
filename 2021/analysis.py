@@ -152,13 +152,14 @@ class LHCbDB(Database):
         # Subtract the background and return n. signal and n. bkg
         return nsigplusbkg - nbkg, nbkg
 
-    def plot(self, attr, label, savename, axis=plt, selection=None):
+    def plot(self, attr, label, savename = None, axis=plt, selection=None):
         '''Make a histogram of an attribute.'''
         histo = axis.hist(self.iterator(attr, selection=selection),
                           bins=100, label=label)
         plt.xlabel(self.titles[attr])
         plt.ylabel('N. candidates')
-        plt.savefig(savename)
+        if savename:
+            plt.savefig(savename)
         return histo
 
     def signal_significance(self, selection=None):
@@ -217,6 +218,37 @@ def prob1(db):
     return massstats
 
 
+def plot_mass_and_time(db, massstats):
+    '''Plot the mass and decaytime distributions.'''
+    massstddev = massstats['stddev']
+    massmin = massstats['min']
+    massmax = massstats['max']
+    massmean = massstats['mean']
+
+    # Plot the mass
+    massfig, massax = plt.subplots()
+    masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png', massax)
+
+    # Add hatched areas to show the signal and background regions
+    massax.add_patch(patches.Rectangle((massmin, 0), massstddev*0.8,
+                                       max(masshisto[0]), color='red',
+                                       fill=False, hatch='X'))
+    massax.add_patch(patches.Rectangle((massmax - massstddev*0.8, 0),
+                                       massstddev*0.8, max(masshisto[0]),
+                                       color='red', fill=False, hatch='X'))
+    massax.add_patch(patches.Rectangle((massmean - massstddev*0.8, 0),
+                                       2*massstddev*0.8, max(masshisto[0]),
+                                       color='blue', fill=False, hatch='X'))
+    plt.savefig('D0Mass-WBoxes.png')
+    plt.clf()
+
+    # Plot the decaytime
+    plt.yscale('log')
+    timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
+    plt.clf()
+    plt.yscale('linear')
+
+    
 def prob2(db):
     '''2)
     Similarly find and output the minimum, maximum, mean and standard deviation of 
@@ -269,6 +301,18 @@ Signal significance: {maxsig:.2f}''')
     return db, optcut
 
 
+def plot_mass_after_selection(db, dboriginal, optcut, ipchi2cut):
+    '''Plot the mass before and after the candidate selection with the
+    optimal pt cut and ipchi2 cut.'''
+    dbrejected = dboriginal.filter(
+        lambda entry: entry.pt < optcut or entry.ipchi2 > ipchi2cut)
+    masshisto = dboriginal.plot('mass', 'All')
+    massaccepted = db.plot('mass', 'Accepted')
+    massrejected = dbrejected.plot('mass', 'Rejected')
+    plt.legend()
+    plt.savefig('D0Mass-WithCuts.png')
+
+
 def prob6(db):
     '''6)
     Calculate the lifetime from the mean of the background subtracted
@@ -279,14 +323,17 @@ def prob6(db):
     tmin = round(timestats['min'], 2)
     tmax = round(timestats['max'], 2)
 
-    print()
-
     sigdist, bkgdist = db.signal_background_distribution(
         'decaytime', 100, tmin, tmax)
     print('''Lifetime from mean : {0:.4f} ps
 Lifetime from stdev: {1:.4f} ps'''.format(sigdist.mean() - timestats['min'],
                                           sigdist.stdev()))
 
+    return sigdist, bkgdist
+
+
+def plot_signal_background_time(sigdist, bkgdist):
+    '''Plot the signal and background decay-time distributions.'''
     plt.clf()
     sigdist.plot()
     bkgdist.plot()
@@ -309,34 +356,8 @@ def main():
     print()
     massstats = prob1(db)
     print()
-
-    massstddev = massstats['stddev']
-    massmin = massstats['min']
-    massmax = massstats['max']
-    massmean = massstats['mean']
-
-    plt.yscale('log')
-    timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
-    plt.clf()
-    plt.yscale('linear')
-
-    massfig, massax = plt.subplots()
-    masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png', massax)
-
-    massax.add_patch(patches.Rectangle((massmin, 0), massstddev*0.8,
-                                       max(masshisto[0]), color='red',
-                                       fill=False, hatch='X'))
-    massax.add_patch(patches.Rectangle((massmax - massstddev*0.8, 0),
-                                       massstddev*0.8, max(masshisto[0]),
-                                       color='red', fill=False, hatch='X'))
-    massax.add_patch(patches.Rectangle((massmean - massstddev*0.8, 0),
-                                       2*massstddev*0.8, max(masshisto[0]),
-                                       color='blue', fill=False, hatch='X'))
-    plt.savefig('D0Mass-WBoxes.png')
-    plt.clf()
-
-    masshisto = db.plot('mass', 'All', 'D0Mass-NoCuts.png')
-
+    plot_mass_and_time(db, massstats)
+    
     print(prob2.__doc__)
     print()
     timestats = prob2(db)
@@ -358,20 +379,17 @@ def main():
     print()
     dbipchi2cut = db
     db, optcut = prob5(db)
-    dbrejected = dboriginal.filter(
-        lambda entry: entry.pt < optcut or entry.ipchi2 > ipchi2cut)
     print()
-
-    massaccepted = db.plot('mass', 'Accepted', 'D0Mass-WithCuts.png')
-    massrejected = dbrejected.plot('mass', 'Rejected', 'D0Mass-WithCuts.png')
-    plt.legend()
-    plt.savefig('D0Mass-WithCuts.png')
+    plot_mass_after_selection(db, dboriginal, optcut, ipchi2cut)
 
     print(prob6.__doc__)
     print()
-    prob6(db)
+    sigdist, bkgdist = prob6(db)
     print()
-
+    plot_signal_background_time(sigdist, bkgdist)
+    
+    return locals()
 
 if __name__ == '__main__':
-    main()
+    vals = main()
+    globals().update(**vals)
