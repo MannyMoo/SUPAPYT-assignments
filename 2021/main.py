@@ -274,7 +274,7 @@ def plot_mass_and_time(db, massstats):
 
     # Plot the decaytime
     plt.yscale('log')
-    timehisto = db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
+    db.plot('decaytime', 'All', 'D0Time-NoCuts.png')
     plt.clf()
     plt.yscale('linear')
 
@@ -354,9 +354,9 @@ def plot_mass_after_selection(db, dboriginal, optcut, ipchi2cut):
     dbrejected = dboriginal.filter(
         lambda entry: entry.pt < optcut or entry.ipchi2 > ipchi2cut)
     # Overlay the plots for all, accepted & rejected candidates
-    masshisto = dboriginal.plot('mass', 'All')
-    massaccepted = db.plot('mass', 'Accepted')
-    massrejected = dbrejected.plot('mass', 'Rejected')
+    dboriginal.plot('mass', 'All')
+    db.plot('mass', 'Accepted')
+    dbrejected.plot('mass', 'Rejected')
     plt.legend()
     plt.savefig('D0Mass-WithCuts.png')
 
@@ -445,6 +445,7 @@ def main():
 
     # Return everything that's been defined in the local namespace
     return locals()
+
 
 if __name__ == '__main__':
     vals = main()
