@@ -13,7 +13,7 @@ try:
     from uncertainties import ufloat
 except ImportError:
     def ufloat(val, err):
-        '''Mimic ufloat but just return a regular float'''
+        '''Mimic ufloat constructor but just return a regular float'''
         return float(val)
 
 
@@ -23,15 +23,20 @@ class LHCbDB(Database):
     class Distribution:
         '''The signal or background distribution of a variable.'''
 
-        def __init__(self, label, attr, counts):
+        def __init__(self, label, attr, counts, xlabel = None, ylabel = 'Yield'):
             '''Takes the label for the distribution, the binning attribute,
-            and the list of counts.
+            the list of counts, and optionally x and y axis labels.
             Entries in "counts" should be dicts with 'n', 'vmin', and 'vmax'
             elements.'''
             self.label = label
             self.attr = attr
             self.counts = counts
-
+            if xlabel:
+                self.xlabel = xlabel
+            else:
+                self.xlabel = LHCbDB.titles[self.attr]
+            self.ylabel = ylabel
+            
         def moment(self, moment=1):
             '''Calculate the moment (mean, mean squared, etc) of the distribution.'''
             return sum(count['n'] * ((count['vmin'] + count['vmax'])/2.)**moment for count in self.counts)\
@@ -65,8 +70,8 @@ class LHCbDB(Database):
         def plot(self, axis=plt):
             '''Plot the distribution.'''
             axis.plot(self.bin_values(), self.yields(), label=self.label)
-            plt.xlabel(LHCbDB.titles[self.attr])
-            plt.ylabel('Yield')
+            plt.xlabel(self.xlabel)
+            plt.ylabel(self.ylabel)
 
     # Static methods don't require an instance of the class to be called
     @staticmethod
@@ -74,6 +79,7 @@ class LHCbDB(Database):
         '''Get a function to test if an entry lies in a given range.'''
         return lambda entry: vmin <= getattr(entry, attr) < vmax
 
+    # The axis titles for each variable
     titles = {'mass': 'D0 mass [MeV]',
               'decaytime': 'Decay time [ps]',
               'pt': 'PT [MeV]',
@@ -96,7 +102,9 @@ class LHCbDB(Database):
 
     def filter(self, test):
         '''Return an LHCbDB of entries satisfying the method 'test'.'''
+        # Use Database.filter from the base class 
         db = super(LHCbDB, self).filter(test)
+        # Copy the mass window info from this LHCbDB
         return LHCbDB(entries=db.entries, massmin=self.massmin,
                       massmax=self.massmax, massmean=self.massmean,
                       masswindow=self.masswindow)
@@ -174,29 +182,50 @@ class LHCbDB(Database):
 
     def optimise_cut(self, attr, vstart, vend, delta, mincut=True):
         '''Optimise a cut value for maximum signal significance.'''
+        # attr < cut
         if not mincut:
+            # Start at the maximum range and decrease in increments
             vstart, vend = vend, vstart
             delta = -delta
+            # Get the accepted interval
             def cutrange(cut): return (float('-inf'), cut)
-            def test(): return cut > vend
+            # Check if the cut value is in range
+            def test(): return cut >= vend
+        # attr > cut
         else:
             def cutrange(cut): return (cut, float('inf'))
-            def test(): return cut < vend
-        cut = vstart - delta
+            def test(): return cut <= vend
+        cut = vstart
         cutsigs = []
+        # Increment the cut value until it exceeds the given range
         while test():
-            cut += delta
+            # Evaluate the signal significance given the cut
             nsig, nbkg, signf = \
                 self.signal_significance(
                     LHCbDB.test_range(attr, *cutrange(cut)))
-            cutsigs.append([cut, signf])
-        return max(cutsigs, key=lambda val: val[1]) + [cutsigs]
+            # Store the cut value and the significance
+            cutsigs.append({'vmin' : cut, 'vmax' : cut, 'n' : signf})
+            # Increment the cut value
+            cut += delta
+        # Make the distribution of signal significance vs cut value
+        xlabel = LHCbDB.titles[attr] + (' >= ' if mincut else ' < ') + ' cut value'
+        distr = LHCbDB.Distribution('Signal significance', attr, cutsigs,
+                                    xlabel = xlabel, ylabel = 'Signal significance')
+        # Return the cut value that gives the maximum significance,
+        # the maximum significance, and the Distribution of significance
+        # vs cut value
+        maxsig = max(cutsigs, key=lambda val: val['n'])
+        return maxsig['vmin'], maxsig['n'], distr
 
     def signal_background_distribution(self, attr, nbins, vmin, vmax):
         '''Get the signal and background distributions of the given attribute.'''
+        # Bin width
         delta = (vmax - vmin)/nbins
         sigcounts = []
         bkgcounts = []
+        # Loop over intervals in increments of the bin width and count
+        # the signal and background in each. Store the counts and
+        # the interval values in a list.
         while vmin < vmax:
             vmaxbin = vmin + delta
             nsig, nbkg = self.count_signal_background(
@@ -204,6 +233,7 @@ class LHCbDB(Database):
             sigcounts.append({'n': nsig, 'vmin': vmin, 'vmax': vmaxbin})
             bkgcounts.append({'n': nbkg, 'vmin': vmin, 'vmax': vmaxbin})
             vmin = vmaxbin
+        # Return the Distributions of signal and background
         return LHCbDB.Distribution('Signal', attr, sigcounts), \
             LHCbDB.Distribution('Background', attr, bkgcounts)
 
@@ -263,6 +293,9 @@ def prob2(db):
 def prob3(db):
     '''3)
     Count the number of signal and background'''
+    # This would be done automatically the first time
+    # count_signal_background is called, but do it explicitly
+    # just to be clear
     db.calculate_mass_ranges()
     nsig, nbkg = db.count_signal_background()
     print('N. signal:', nsig)
@@ -273,6 +306,9 @@ def prob3(db):
 def prob4(db, ipchi2cut):
     '''4)
     Find the number of signal and background with ipchi2 < 13 and ipchi2 >= 13'''
+    # Loop over the two cut ranges [cut, +inf) and [0, cut) and count
+    # the signal and background in each.
+    # Note that you can use float('inf') for infinity
     for name, ipmin, ipmax in [('ipchi2 >= ' + str(ipchi2cut), ipchi2cut, float('inf')),
                                ('ipchi2 < ' + str(ipchi2cut), 0, ipchi2cut)]:
         nsig, nbkg = db.count_signal_background(
@@ -280,6 +316,7 @@ def prob4(db, ipchi2cut):
         print(name)
         print('N. signal:', nsig)
         print('N. bkg   :', nbkg)
+    # Filter with the < cut.
     return db.filter(LHCbDB.test_range('ipchi2', 0, ipchi2cut))
 
 
@@ -287,25 +324,36 @@ def prob5(db):
     '''5)
     Find the optimal `pt` cut value and the signal significance that it gives'''
 
-    ptstats = db.stats('pt')
-    delta = 10
-    ptmin = ptstats['min']
+    # Increment from the minimum PT up to 5000 in steps of 10
+    ptmin = db.min('pt')
     ptmax = 5000
-    optcut, maxsig, cutsigs = db.optimise_cut('pt', ptmin, ptmax, delta)
+    delta = 10
+    # Get the optimal cut value
+    optcut, maxsig, sigdistr = db.optimise_cut('pt', ptmin, ptmax, delta)
+    # Filter with the optimal cut
     db = db.filter(LHCbDB.test_range('pt', optcut, float('inf')))
+    # Count the signal and background
     nsigcut, nbkgcut = db.count_signal_background()
     print(f'''Optimal pt cut: {optcut:.2f}
 N. signal: {nsigcut}
 N. bkg   : {nbkgcut}
 Signal significance: {maxsig:.2f}''')
+
+    # Save the plot of significance vs PT cut
+    sigdistr.plot()
+    plt.savefig('SigSignificance-vs-PTCut.png')
+    plt.clf()
+    
     return db, optcut
 
 
 def plot_mass_after_selection(db, dboriginal, optcut, ipchi2cut):
     '''Plot the mass before and after the candidate selection with the
     optimal pt cut and ipchi2 cut.'''
+    # Database of rejected candidates
     dbrejected = dboriginal.filter(
         lambda entry: entry.pt < optcut or entry.ipchi2 > ipchi2cut)
+    # Overlay the plots for all, accepted & rejected candidates
     masshisto = dboriginal.plot('mass', 'All')
     massaccepted = db.plot('mass', 'Accepted')
     massrejected = dbrejected.plot('mass', 'Rejected')
@@ -319,14 +367,16 @@ def prob6(db):
     decay-time distribution as well as the standard deviation of the 
     distribution.'''
 
-    timestats = db.stats('decaytime')
-    tmin = round(timestats['min'], 2)
-    tmax = round(timestats['max'], 2)
+    # Get the decay-time range
+    tmin = round(db.min('decaytime'), 2)
+    tmax = round(db.max('decaytime'), 2)
 
+    # Get the signal and background distributions
     sigdist, bkgdist = db.signal_background_distribution(
         'decaytime', 100, tmin, tmax)
+    # Calculate the lifetime from the mean and stdev.
     print('''Lifetime from mean : {0:.4f} ps
-Lifetime from stdev: {1:.4f} ps'''.format(sigdist.mean() - timestats['min'],
+Lifetime from stdev: {1:.4f} ps'''.format(sigdist.mean() - tmin,
                                           sigdist.stdev()))
 
     return sigdist, bkgdist
@@ -345,13 +395,18 @@ def plot_signal_background_time(sigdist, bkgdist):
 def main():
     '''Solve all the problems.'''
 
+    # Simple use of ArgumentParser to have an optional argument to
+    # the script that defines the input file name.
     parser = ArgumentParser()
     parser.add_argument('fname', nargs='?', default='D0KpiData.csv')
 
+    # Parse the commandline arguments
     args = parser.parse_args()
 
+    # Make the DB
     db = LHCbDB(csvfile=args.fname)
 
+    # Solve all the problems and make some nice plots
     print(prob1.__doc__)
     print()
     massstats = prob1(db)
@@ -387,9 +442,12 @@ def main():
     sigdist, bkgdist = prob6(db)
     print()
     plot_signal_background_time(sigdist, bkgdist)
-    
+
+    # Return everything that's been defined in the local namespace
     return locals()
 
 if __name__ == '__main__':
     vals = main()
+    # Update the global namespace with the variables defined in the
+    # main function
     globals().update(**vals)
