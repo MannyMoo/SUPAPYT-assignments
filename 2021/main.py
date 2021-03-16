@@ -20,6 +20,8 @@ except ImportError:
 class LHCbDB(Database):
     '''Derived Database class to hold the LHCb data.'''
 
+    # A class can contain another class, normally if it's only intended
+    # for use within the containing class
     class Distribution:
         '''The signal or background distribution of a variable.'''
 
