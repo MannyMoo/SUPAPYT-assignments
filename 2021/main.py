@@ -9,7 +9,6 @@ from matplotlib import patches
 from argparse import ArgumentParser
 # Use ufloat if it's available
 try:
-    raise ImportError
     from uncertainties import ufloat
 except ImportError:
     def ufloat(val, err):
