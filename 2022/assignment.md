@@ -16,8 +16,8 @@ Write a script/module/package in python to do the following:
 
 5) Similarly to problem 4, group the countries by region, then, for each decade in the range 1960s-2010s, calculate the total emissions of each region in that decade, then print the regions and their total emissions sorted by emissions. A decade is defined as, eg, 1960-1969 inclusive (or 2010-2018 for 2010s as there's no data for 2019). Do the same grouping the countries by income group.
 
-Again, only [Standard Library](https://docs.python.org/3/library/index.html) functionality is allowed. The [`csv`](https://docs.python.org/3/library/csv.html) module can help with reading the data file.
+Again, only [Standard Library](https://docs.python.org/3/library/index.html) functionality is allowed. The [`csv`](https://docs.python.org/3/library/csv.html) module can help with reading the data file. Your code should only take a few seconds to run - if it takes much longer, think about how you could restructure it to be more efficient.
 
-Upload your solution scripts here. A Jupyter notebook is also accepted. I will execute the code with the original data file in the same directory.
+Upload your solution scripts here. A Jupyter notebook is also accepted. You don't need to include the data file in your submission. I will execute the code with the original data file in the same directory.
 
 Solutions will be graded not just on obtaining the correct answers but also on the readability of the code and its output, how well structured the code is, and how well you make use of python functionality. Consider that you might want to rerun your code when additional years or countries are added to the data file and remember the [coding tips](https://mannymoo.github.io/IntroductionToPython/SUPAPYT-IntroductionToPython.html#A-Few-Tips) from the lectures.
