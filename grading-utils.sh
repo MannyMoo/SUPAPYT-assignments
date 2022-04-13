@@ -107,3 +107,22 @@ function cp-input-file() {
 	fi
     done
 }
+
+# Make the feedback .zip file to upload feedback for all students at once
+# Execute in the directory containing the .zip file of all submissions
+# and the Participant_* directories containing the feedback pdf files.
+function make-feedback() {
+    mkdir feedback
+    cd feedback
+    # unzip the original submissions
+    unzip ../*.zip
+    # copy the pdf feedback files into the submission directories
+    for d in $(ls); do
+	cp ../$d/*.pdf $d
+    done
+    # zip them
+    zip -r ../feedback.zip Participant_*
+    cd ..
+    # clean up
+    rm -r feedback
+}

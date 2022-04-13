@@ -113,11 +113,19 @@ def prob5(grdbs):
             print('Decade:', decade + '0')
             sum_and_sort_emissions(db, decadeyears)
         print()
-            
+
+
 if __name__ == '__main__':
     db = Database(csvfile='PerCapitaC02Emissions.csv')
-    prob1(db)
-    prob2(db)
-    prob3(db)
+    for prob in prob1, prob2, prob3:
+        print('*** ' + prob.__doc__)
+        print()
+        prob(db)
+        print()
+    print('*** ' + prob4.__doc__)
+    print()
     grdbs = prob4(db)
+    print()
+    print('*** ' + prob5.__doc__)
+    print()
     prob5(grdbs)
