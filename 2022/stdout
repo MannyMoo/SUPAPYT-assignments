@@ -1,13 +1,13 @@
+*** Problem 1
 *** Find the countries with the lowest and highest emissions in 1960,
     and similarly in 2018 (ignoring countries with no data for the given year).
     Print the names of the countries and their emissions for each year.
-
 Year: 1960 min. emissions: Nepal 0.008 max. emissions: Aruba 204.632
 Year: 2018 min. emissions: Congo, Dem. Rep. 0.026 max. emissions: Qatar 32.416
 
+*** Problem 2
 *** Find the and print mean and standard deviation of the emissions across all
     countries in 1960 & 2018 (ignoring countries that have no data for the given year).
-
 1960
 n      : 155
 min    : 0.00798352508545224
@@ -23,17 +23,17 @@ mean   : 4.186036456835386
 median : 2.539572995932775
 stddev : 4.841174757182509
 
+*** Problem 3
 *** Find the countries with the lowest and highest total emissions
     summed over all years for which there's data. Print their names and
     total emissions.
-
 Min. total emissions: South Sudan 1.03
 Max. total emissions: Aruba 5522.39
 
+*** Problem 4
 *** Sum the total emissions for all countries in each region across all years.
-    Print a list of the regions and their total emissions, ordered by their emissions.
-    Do the same grouping the countries by income group.
-
+    Print a list of the regions and their total emissions, ordered by their 
+    emissions. Do the same grouping the countries by income group.
 Grouped by Region :
 Europe & Central Asia         : 16673.15
 Middle East & North Africa    : 10703.74
@@ -50,11 +50,11 @@ Lower middle income           : 2607.92
 Low income                    : 582.74
 
 
+*** Problem 5
 *** Similarly to problem 4, group the countries by region, then, for each
     decade in the range 1960s-2010s, calculate the total emissions of each
     region in that decade, then print the regions and their total emissions
     sorted by emissions. Do the same grouping the countries by income group.
-
 Group by Region
 Decade: 1960
 Latin America & Caribbean     : 2556.64
@@ -136,4 +136,5 @@ High income                   : 4701.89
 Upper middle income           : 1882.88
 Lower middle income           : 643.88
 Low income                    : 68.91
+
 

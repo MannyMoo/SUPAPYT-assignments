@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-'''Solutions to SUPAPYT assignment 2022.'''
+'''Solutions to SUPAPYT assignment 2022 - analysing global per-capita C02
+emissions.'''
 
+from argparse import ArgumentParser
 from Database import Database
 
 
@@ -34,6 +36,7 @@ def sum_emissions(entry, years):
     '''Sum the emissions of the entry over the given years.'''
     return sum(entry[str(i)] for i in years
                if entry[str(i)] != '')
+
 
 def prob3(db):
     '''Find the countries with the lowest and highest total emissions
@@ -81,29 +84,35 @@ def sum_and_sort_emissions(db, years, output=True):
                                 reverse=True):
             print('{0:<30}: {1:.2f}'.format(name, tot))
     return sums
-    
-def prob4(db):
-    '''Sum the total emissions for all countries in each region across all years.
-    Print a list of the regions and their total emissions, ordered by their emissions.
-    Do the same grouping the countries by income group.'''
+
+
+def grouped_DBs(db, *groups):
+    '''Make DBs grouped by the given column names.'''
     dbs = {}
-    years = get_years(db)
-    
-    for group in 'Region', 'IncomeGroup':
+    for group in groups:
         grdb = make_grouped_DB(db, group)
-        print('Grouped by', group, ':')
-        sum_and_sort_emissions(grdb, years)
         dbs[group] = grdb
-        print()
     return dbs
 
 
-def prob5(grdbs):
+def prob4(grDBs):
+    '''Sum the total emissions for all countries in each region across all years.
+    Print a list of the regions and their total emissions, ordered by their 
+    emissions. Do the same grouping the countries by income group.'''
+    # Get the years from the first DB
+    years = get_years(list(grDBs.values())[0])
+    for group, grDB in grDBs.items():
+        print('Grouped by', group, ':')
+        sum_and_sort_emissions(grDB, years)
+        print()
+
+
+def prob5(grDBs):
     '''Similarly to problem 4, group the countries by region, then, for each
     decade in the range 1960s-2010s, calculate the total emissions of each
     region in that decade, then print the regions and their total emissions
     sorted by emissions. Do the same grouping the countries by income group.'''
-    for group, db in grdbs.items():
+    for group, db in grDBs.items():
         print('Group by', group)
         years = get_years(db)
         decades = sorted(set(year[:-1] for year in years))
@@ -115,17 +124,37 @@ def prob5(grdbs):
         print()
 
 
+def main(inputfile, *problems):
+    '''Solve the assignment problems.'''
+    db = Database(csvfile=inputfile)
+    grDBs = None
+    if '4' in problems or '5' in problems:
+        grDBs = grouped_DBs(db, 'Region', 'IncomeGroup')
+    funcs = {'1' : (prob1, db),
+             '2' : (prob2, db),
+             '3' : (prob3, db),
+             '4' : (prob4, grDBs),
+             '5' : (prob5, grDBs)}
+    for prob in sorted(problems):
+        func, arg = funcs[prob]
+        print('*** Problem', prob)
+        print('***', func.__doc__)
+        func(arg)
+        print()
+
+
 if __name__ == '__main__':
-    db = Database(csvfile='PerCapitaC02Emissions.csv')
-    for prob in prob1, prob2, prob3:
-        print('*** ' + prob.__doc__)
-        print()
-        prob(db)
-        print()
-    print('*** ' + prob4.__doc__)
-    print()
-    grdbs = prob4(db)
-    print()
-    print('*** ' + prob5.__doc__)
-    print()
-    prob5(grdbs)
+    parser = ArgumentParser('solution.py',
+                            description='SUPAPYT 2022 assignment problems'
+                            ' - analyse global per-capita CO2 emissions')
+    
+    parser.add_argument('--inputfile', default='PerCapitaC02Emissions.csv',
+                        help='Name of the csv file containing the data.')
+    problems = list(map(str, range(1, 6)))
+    parser.add_argument('--problems', nargs='*', default=problems,
+                        choices=problems,
+                        help='Which problems to solve')
+
+    args = parser.parse_args()
+    main(args.inputfile, *args.problems)
+                        
