@@ -1,4 +1,4 @@
-# SUPAPYT 2021 assignment solution
+# SUPAPYT 2022 assignment solution
 
 Solution to the assignment for SUPA ["Introduction to Python"](https://mannymoo.github.io/IntroductionToPython/) 2022, details [here](assignment.md).
 
