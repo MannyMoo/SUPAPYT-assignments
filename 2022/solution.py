@@ -10,10 +10,15 @@ from Database import Database
 class EmissionsDB(Database):
     '''Database for analysis of per-capita emissions.'''
 
-    def __init__(self, *args, **kwargs):
-        '''Takes the same arguments as Database.Database.__init__.'''
+    def __init__(self, entries=[], csvfile=None, readonly=True):
+        '''Takes the same arguments as Database.Database.__init__:
+        entries: list of Entry instances
+        csvfile: file name or file object containing data in csv format
+        readonly: whether the DB should be read only'''
         # Initialise the base class
-        super(EmissionsDB, self).__init__(*args, **kwargs)
+        super(EmissionsDB, self).__init__(entries=entries,
+                                          csvfile=csvfile,
+                                          readonly=readonly)
 
         # Check that the DB has the expected columns
         expected = ('Country Name', 'Region', 'IncomeGroup')
@@ -39,8 +44,7 @@ class EmissionsDB(Database):
     @staticmethod
     def sum_emissions(entry, years):
         '''Sum the emissions of the entry over the given years.'''
-        return sum(entry[i] for i in years
-                   if entry[i] != '')
+        return sum(entry[i] for i in years if entry[i] != '')
 
     def summed_emissions(self, years=None):
         '''Get the total emissions of all countries over the given years
