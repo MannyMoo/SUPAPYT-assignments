@@ -102,7 +102,7 @@ class EmissionsDB(Database):
         # Print if requested
         if output:
             for name, tot in sums:
-                print('{0:<30}: {1:.2f} tpc'.format(name, tot))
+                print('{0:<30}: {1:8.2f} tpc'.format(name, tot))
         return sums
 
     def sum_and_sort_per_decade(self, output=True):
@@ -133,10 +133,10 @@ def prob1(db):
         minCountry = db.min_entry(year)
         maxCountry = db.max_entry(year)
         print('Year:', year)
-        print('Min. emissions: {name:<18} - {emissions:.3f} tpc'
+        print('Min. emissions: {name:<18} - {emissions:7.3f} tpc'
               .format(name=minCountry['Country Name'],
                       emissions=minCountry[year]))
-        print('Max. emissions: {name:<18} - {emissions:.3f} tpc'
+        print('Max. emissions: {name:<18} - {emissions:7.3f} tpc'
               .format(name=maxCountry['Country Name'],
                       emissions=maxCountry[year]))
 
@@ -149,7 +149,7 @@ def prob2(db):
     the given year).'''
     for year in '1960', '2018':
         print('Stats for', year, ' [tpc]:')
-        db.print_stats(year, '.3f')
+        db.print_stats(year, '7.3f')
         print()
 
 
@@ -162,8 +162,8 @@ def prob3(db):
     # Find the min & max
     mincountry = min(sums.items(), key=lambda entry : entry[1])
     maxcountry = max(sums.items(), key=lambda entry : entry[1])
-    print('Min. total emissions: {0:<18} - {1:.2f} tpc'.format(*mincountry))
-    print('Max. total emissions: {0:<18} - {1:.2f} tpc'.format(*maxcountry))
+    print('Min. total emissions: {0:<18} - {1:7.2f} tpc'.format(*mincountry))
+    print('Max. total emissions: {0:<18} - {1:7.2f} tpc'.format(*maxcountry))
 
 
 def grouped_DBs(db, *groups):
