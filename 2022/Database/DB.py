@@ -207,7 +207,8 @@ class Database(object):
             form = '{0}'
         stats = self.stats(attr)
         for attr in 'n', 'min', 'max', 'mean', 'median', 'stddev':
-            print(attr.ljust(6), ':', form.format(stats[attr]))
+            print(attr.ljust(6), ':',
+                  form.format(stats[attr]) if attr != 'n' else stats[attr])
         return stats
 
     def sort(self, attr):

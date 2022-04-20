@@ -67,6 +67,7 @@ class EmissionsDB(Database):
             for year in self.years:
                 initvals[year] = 0.
             groups[gr] = initvals
+
         for entry in self:
             # Get the group for this entry
             entryGroup = groups[entry[group]]
@@ -76,6 +77,7 @@ class EmissionsDB(Database):
                 if entry[year] == '':
                     continue
                 entryGroup[year] += entry[year]
+
         # Make Database.Entry instances for each group
         grEntries = [self.Entry(**vals) for vals in groups.values()]
         # Make a DB of the entries
@@ -96,7 +98,7 @@ class EmissionsDB(Database):
         # Print if requested
         if output:
             for name, tot in sums:
-                print('{0:<30}: {1:.2f}'.format(name, tot))
+                print('{0:<30}: {1:.2f} tpc'.format(name, tot))
         return sums
 
     def sum_and_sort_per_decade(self, output=True):
@@ -112,7 +114,7 @@ class EmissionsDB(Database):
             decadeYears = list(filter(lambda year : year.startswith(decade),
                                       self.years))
             if output:
-                print('Decade:', decade + '0')
+                print('--- Decade:', decade + '0')
             # Sum and sort for each decade, and print the results
             sums = self.sum_and_sort_emissions(decadeYears, output)
             decadeSums[decade + '0'] = sums
@@ -124,19 +126,27 @@ def prob1(db):
     and similarly in 2018 (ignoring countries with no data for the given year).
     Print the names of the countries and their emissions for each year.'''
     for year in '1960', '2018':
-        mincountry = db.min_entry(year)
-        maxcountry = db.max_entry(year)
-        print('Year:', year, 'min. emissions:', mincountry['Country Name'],
-              round(mincountry[year], 3), 'max. emissions:',
-              maxcountry['Country Name'], round(maxcountry[year], 3))
-    
+        minCountry = db.min_entry(year)
+        maxCountry = db.max_entry(year)
+        print('Year:', year)
+        print('Min. emissions: {name:<18} - {emissions:.3f} tpc'
+              .format(name=minCountry['Country Name'],
+                      emissions=minCountry[year]))
+        print('Max. emissions: {name:<18} - {emissions:.3f} tpc'
+              .format(name=maxCountry['Country Name'],
+                      emissions=maxCountry[year]))
+
+        print()
+
 
 def prob2(db):
-    '''Find the and print mean and standard deviation of the emissions across all
-    countries in 1960 & 2018 (ignoring countries that have no data for the given year).'''
+    '''Find the and print mean and standard deviation of the emissions across
+    all countries in 1960 & 2018 (ignoring countries that have no data for
+    the given year).'''
     for year in '1960', '2018':
-        print(year)
-        db.print_stats(year)
+        print('Stats for', year, ' [tpc]:')
+        db.print_stats(year, '.3f')
+        print()
 
 
 def prob3(db):
@@ -148,8 +158,8 @@ def prob3(db):
     # Find the min & max
     mincountry = min(sums.items(), key=lambda entry : entry[1])
     maxcountry = max(sums.items(), key=lambda entry : entry[1])
-    print('Min. total emissions: {0} {1:.2f}'.format(*mincountry))
-    print('Max. total emissions: {0} {1:.2f}'.format(*maxcountry))
+    print('Min. total emissions: {0:<18} - {1:.2f} tpc'.format(*mincountry))
+    print('Max. total emissions: {0:<18} - {1:.2f} tpc'.format(*maxcountry))
 
 
 def grouped_DBs(db, *groups):
