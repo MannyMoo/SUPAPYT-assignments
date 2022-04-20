@@ -10,6 +10,10 @@ To run, download and extract [the zip file](https://github.com/MannyMoo/SUPAPYT-
 python3 solution.py
 ```
 
-The script accepts an optional argument to specify the input file name, which defaults to "PerCapitaC02Emissions.csv".
+The script accepts an optional argument to specify the input file name, which defaults to "PerCapitaC02Emissions.csv". It also accepts a list of problem numbers to solve, so it can be run with, eg,
+
+```
+python3 solution.py --inputfile fname.csv --problems 2 3 4
+```
 
 The output of the script, with the answers to each question, can be viewed [here](stdout).
