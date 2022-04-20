@@ -1,0 +1,149 @@
+*** Problem 1
+    Find the countries with the lowest and highest emissions in 1960,
+    and similarly in 2018 (ignoring countries with no data for the given year).
+    Print the names of the countries and their emissions for each year.
+Year: 1960
+Min. emissions: Nepal              - 0.008 tpc
+Max. emissions: Aruba              - 204.632 tpc
+
+Year: 2018
+Min. emissions: Congo, Dem. Rep.   - 0.026 tpc
+Max. emissions: Qatar              - 32.416 tpc
+
+
+*** Problem 2
+    Find the and print mean and standard deviation of the emissions across
+    all countries in 1960 & 2018 (ignoring countries that have no data for
+    the given year).
+Stats for 1960  [tpc]:
+n      : 155
+min    : 0.008
+max    : 204.632
+mean   : 3.397
+median : 0.478
+stddev : 16.873
+
+Stats for 2018  [tpc]:
+n      : 190
+min    : 0.026
+max    : 32.416
+mean   : 4.186
+median : 2.540
+stddev : 4.841
+
+
+*** Problem 3
+    Find the countries with the lowest and highest total emissions
+    summed over all years for which there's data. Print their names and
+    total emissions.
+Min. total emissions: South Sudan        - 1.03 tpc
+Max. total emissions: Aruba              - 5522.39 tpc
+
+*** Problem 4
+    Sum the total emissions for all countries in each region across all years.
+    Print a list of the regions and their total emissions, ordered by their 
+    emissions. Do the same grouping the countries by income group.
+Grouped by Region :
+Europe & Central Asia         : 16673.15 tpc
+Middle East & North Africa    : 10703.74 tpc
+Latin America & Caribbean     : 10537.13 tpc
+East Asia & Pacific           : 7094.60 tpc
+North America                 : 2233.68 tpc
+Sub-Saharan Africa            : 1939.53 tpc
+South Asia                    : 219.20 tpc
+
+Grouped by IncomeGroup :
+High income                   : 37759.83 tpc
+Upper middle income           : 8450.53 tpc
+Lower middle income           : 2607.92 tpc
+Low income                    : 582.74 tpc
+
+
+*** Problem 5
+    Similarly to problem 4, group the countries by region, then, for each
+    decade in the range 1960s-2010s, calculate the total emissions of each
+    region in that decade, then print the regions and their total emissions
+    sorted by emissions. Do the same grouping the countries by income group.
+Group by Region
+--- Decade: 1960
+Latin America & Caribbean     : 2556.64 tpc
+Europe & Central Asia         : 1883.43 tpc
+Middle East & North Africa    : 1474.95 tpc
+East Asia & Pacific           : 612.21 tpc
+North America                 : 336.64 tpc
+Sub-Saharan Africa            : 141.19 tpc
+South Asia                    : 14.01 tpc
+--- Decade: 1970
+Latin America & Caribbean     : 3370.53 tpc
+Europe & Central Asia         : 2518.87 tpc
+Middle East & North Africa    : 2251.98 tpc
+East Asia & Pacific           : 1587.85 tpc
+North America                 : 456.76 tpc
+Sub-Saharan Africa            : 290.25 tpc
+South Asia                    : 13.89 tpc
+--- Decade: 1980
+Europe & Central Asia         : 2470.63 tpc
+Latin America & Caribbean     : 2020.60 tpc
+Middle East & North Africa    : 1722.90 tpc
+East Asia & Pacific           : 1338.58 tpc
+North America                 : 448.17 tpc
+Sub-Saharan Africa            : 317.25 tpc
+South Asia                    : 21.39 tpc
+--- Decade: 1990
+Europe & Central Asia         : 3582.20 tpc
+Middle East & North Africa    : 1662.55 tpc
+East Asia & Pacific           : 1126.86 tpc
+Latin America & Caribbean     : 759.26 tpc
+North America                 : 349.70 tpc
+Sub-Saharan Africa            : 320.13 tpc
+South Asia                    : 35.20 tpc
+--- Decade: 2000
+Europe & Central Asia         : 3422.72 tpc
+Middle East & North Africa    : 1937.27 tpc
+East Asia & Pacific           : 1237.19 tpc
+Latin America & Caribbean     : 950.70 tpc
+Sub-Saharan Africa            : 455.61 tpc
+North America                 : 358.82 tpc
+South Asia                    : 56.53 tpc
+--- Decade: 2010
+Europe & Central Asia         : 2795.30 tpc
+Middle East & North Africa    : 1654.08 tpc
+East Asia & Pacific           : 1191.91 tpc
+Latin America & Caribbean     : 879.40 tpc
+Sub-Saharan Africa            : 415.10 tpc
+North America                 : 283.58 tpc
+South Asia                    : 78.19 tpc
+
+Group by IncomeGroup
+--- Decade: 1960
+High income                   : 6136.19 tpc
+Upper middle income           : 648.42 tpc
+Lower middle income           : 170.63 tpc
+Low income                    : 63.82 tpc
+--- Decade: 1970
+High income                   : 8984.38 tpc
+Upper middle income           : 1091.86 tpc
+Lower middle income           : 297.06 tpc
+Low income                    : 116.83 tpc
+--- Decade: 1980
+High income                   : 6614.27 tpc
+Upper middle income           : 1252.16 tpc
+Lower middle income           : 331.17 tpc
+Low income                    : 141.92 tpc
+--- Decade: 1990
+High income                   : 5479.18 tpc
+Upper middle income           : 1700.52 tpc
+Lower middle income           : 559.44 tpc
+Low income                    : 96.76 tpc
+--- Decade: 2000
+High income                   : 5843.92 tpc
+Upper middle income           : 1874.68 tpc
+Lower middle income           : 605.73 tpc
+Low income                    : 94.51 tpc
+--- Decade: 2010
+High income                   : 4701.89 tpc
+Upper middle income           : 1882.88 tpc
+Lower middle income           : 643.88 tpc
+Low income                    : 68.91 tpc
+
+
