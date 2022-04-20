@@ -15,7 +15,7 @@ Max. emissions: Qatar              -  32.416 tpc
     Find the and print mean and standard deviation of the emissions across
     all countries in 1960 & 2018 (ignoring countries that have no data for
     the given year).
-Stats for 1960  [tpc]:
+Stats for 1960 [tpc]:
 n      : 155
 min    :   0.008
 max    : 204.632
@@ -23,7 +23,7 @@ mean   :   3.397
 median :   0.478
 stddev :  16.873
 
-Stats for 2018  [tpc]:
+Stats for 2018 [tpc]:
 n      : 190
 min    :   0.026
 max    :  32.416

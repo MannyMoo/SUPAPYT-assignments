@@ -148,7 +148,7 @@ def prob2(db):
     all countries in 1960 & 2018 (ignoring countries that have no data for
     the given year).'''
     for year in '1960', '2018':
-        print('Stats for', year, ' [tpc]:')
+        print('Stats for', year, '[tpc]:')
         db.print_stats(year, '7.3f')
         print()
 
